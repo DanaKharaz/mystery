@@ -1,0 +1,13 @@
+#screen {
+    height: 300px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: glitch 1.8s linear infinite;
+}
+@keyframes glitch {
+    0% {background-image: url('static_screen/1.png');}
+    74% {background-image: url('static_screen/1.png');}
+    77% {background-image: url('static_screen/2.png');}
+    90% {background-image: url('static_screen/2.png');}
+    93% {background-image: url('static_screen/3.png');}
+}
