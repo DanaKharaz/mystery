@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="test_style.css">
+    <script src="test_script.js" defer></script>
+    <title> TEST </title>
+</head>
+
+<body>
+    <!-- TOOLBAR -->
+    <div id="toolbar-container">
+        <div id="toolbar">
+            <!-- TOOLBAR - ITEMS -->
+            <div id="item-collection">
+                <div id="item-collection-lbl">found<br>items</div>
+                <hr>
+                <div id="items-container"></div>
+            </div>
+            <!-- TOOLBAR - SIDE BUTTONS -->
+            <div id="side-btns-container">
+                <img class="side-btn" id="hint-btn" src="icons/hint_btn.svg">
+                <img class="side-btn" id="pause-btn" src="icons/pause_btn.svg">
+                <img class="side-btn" id="sound-btn" src="icons/sound_on_btn.svg">
+                <img class="side-btn" id="info-btn" src="icons/info_btn.svg">
+            </div>
+        </div>
+        <div id="toolbar-btn"><img id="toolbar-btn-img" src="icons/toolbar_close.svg"></div>
+    </div>
+
+    <!-- * ************************************************************************************************ * -->
+
+    <!-- INNER MINIGAME -->
+    <iframe id="minigame" src="test film.html"></iframe>
+
+    <!-- * ************************************************************************************************ * -->
+
+    <!-- PAUSE SCREEN -->
+    <div id="pause-screen-hidden">
+        <!-- PAUSE SCREEN - ANIMATED TV SCREEN -->
+        <div id="screen-frame">
+            <div id="tv-screen">
+                <div id="tv-noise"></div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+
+</html>

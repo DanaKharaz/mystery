@@ -1,13 +1,325 @@
-#screen {
-    height: 300px;
+body {
+    background-color: black;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* ****************************************************** */
+
+/* START SCREEN */
+#start-screen-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+#start-moons {
+    aspect-ratio: 1 / 1;
+    height: 100%;
+    animation: rotate-moons 10s linear infinite;
+}
+@keyframes rotate-moons {
+    0% {rotate: 0deg;}
+    100% {rotate: 360deg;}
+}
+#start-btn {
+    position: fixed;
+    font-size: 8vh;
+    color: white;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+#start-btn:hover {cursor: pointer;}
+#start-btn-container {
+    width: 50vh;
+    height: 50vh;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+}
+.start-btn-container-moving {
+    overflow: hidden;
+    animation: start-btn-moving 3s ease-in forwards;
+}
+@keyframes start-btn-moving {
+    0% {
+        width: 50vh;
+        height: 50vh;
+    }
+    100% {
+        width: 200vw;
+        height: 200vw;
+    }
+}
+
+/* ****************************************************** */
+
+/* TOOLBAR - GENERAL */
+#toolbar-container {
+    position: fixed;
+    width: 100%;
+    top: 0em;
+    left: 0em;
+    z-index: 1;
+}
+#toolbar {
+    background-color: #3b3b3b;
+    padding: 0.25em;
+}
+/* TOOLBAR - ITEM COLLECTION */
+#item-collection {
+    display: inline-block;
+    vertical-align: middle;
+    border: 0.1em dashed white;
+    width: 75%;
+    margin: 0.5em;
+}
+#item-collection-lbl {
+    display: inline-block;
+    color: white;
+    line-height: 1.6em;
+    vertical-align: middle;
+    margin-left: 0.5em;
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+}
+hr {
+    display: inline-block;
+    border: none;
+    border-left: 0.05em solid white;
+    height: 2.5em;
+    width: 0.05em;
+    vertical-align: middle;
+}
+#items-container {
+    display: inline-block;
+    width: calc(100% - 5.1em);
+    scrollbar-width: thin;
+    scrollbar-color: #666666 #292828;
+    scrollbar-gutter: stable;
+    scroll-snap-align: start;
+    overflow-x: hidden;
+    height: 3.2em;
+    vertical-align: middle;
+}
+#items-container:hover {overflow-x: scroll;}
+/* TOOLBAR - OPEN & CLOSE */
+#toolbar-btn {
+    background-color: #3b3b3b;
+    border-radius: 0em 0em 0.25em 0.25em;
+    width: fit-content;
+    height: 1.8em;
+    padding: 0em;
+    margin-left: 0.5em;
+    margin-top: -0.4em;
+}
+#toolbar-btn-img {
+    height: 2em;
+    margin: 0em;
+}
+#toolbar-btn:hover {cursor: pointer;}
+.opening-toolbar {animation: open-toolbar 1s forwards;}
+@keyframes open-toolbar {
+    0% {top: -5.2em;}
+    100% {top: 0em;}
+}
+.closing-toolbar {animation: close-toolbar 1s forwards;}
+@keyframes close-toolbar {
+    0% {top: 0em;}
+    100% {top: -5.2em;}
+}
+/* TOOLBAR - SIDE BUTTONS */
+#side-btns-container {
+    display: inline;
+    float: right;
+    vertical-align: middle;
+    height: 5em;
+    margin-right: 0.5em;
+}
+.side-btn {
+    display: inline;
+    height: 70%;
+    margin-top: 5%;
+    margin-right: 0.4em;
+    vertical-align: middle;
+}
+.side-btn:hover {
+    cursor: pointer;
+    filter: drop-shadow(0 0 1em white);
+}
+
+/* ****************************************************** */
+
+/* PAUSE SCREEN - TV */
+#pause-screen-hidden, #pause-screen-shown {
+    height: 80vh;
+    padding-top: 15vh;
+    margin-top: 3vh;
+}
+#pause-screen-hidden {display: none;} /* initially hidden */
+#pause-screen-shown {display: auto;}
+/* PAUSE SCREEN - ANIMATED TV SCREEN */
+#screen-frame {
+    aspect-ratio: 1337 / 1080;
+    height: 70vh;
+    border: 6px solid black;
+    margin: auto;
+    overflow: hidden;
+    position: relative;
+    border-radius: 50% / 10%;
+}
+#tv-screen {
+    height: 100%;
     background-size: contain;
     background-repeat: no-repeat;
-    animation: glitch 1.8s linear infinite;
+    animation: tv-glitch 1.8s linear infinite;
 }
-@keyframes glitch {
+@keyframes tv-glitch {
     0% {background-image: url('static_screen/1.png');}
     74% {background-image: url('static_screen/1.png');}
     77% {background-image: url('static_screen/2.png');}
     90% {background-image: url('static_screen/2.png');}
     93% {background-image: url('static_screen/3.png');}
 }
+#tv-noise {
+    height: 200%;
+    aspect-ratio: 1337 / 1080;
+    background-image: url(static_screen/noise.svg);
+    opacity: 0.7;
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    animation: noise-effect 2s steps(6) infinite;
+}
+@keyframes noise-effect {
+    0%, 100% {transform: translate(0, 0);}
+    10% {transform: translate(-5%, -10%);}
+    30% {transform: translate(3%, -15%);}
+    50% {transform: translate(12%, 9%);}
+    70% {transform: translate(9%, 4%);}
+    90% {transform: translate(-1%, 7%);}
+}
+#minigame {
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    border: none;
+}
+
+/* ****************************************************** */
+
+/* FILM */
+:root {
+    --currImg: url('film/The VVitch (2015).png'); /* default value, will be overriden by later */
+    --prevImg: url('film/The VVitch (2015).png'); /* default value, will be overriden by later */
+}
+#film-grid {
+    width: 72vw;
+    text-align: center;
+    position: absolute;
+    top: 50vh;
+    transform: translateY(-50%); /* center vertically */
+    left: 14vw;
+    padding: 0;
+}
+.film-frame {
+    content: url(film/film_back.png);
+    display: inline grid;
+    justify-content: space-around;
+    width: 10vw;
+    margin-top: 0.1vw;
+    margin-bottom: 0.1vw;
+    margin-left: 0;
+    margin-right: 0;
+    aspect-ratio: 1337 / 1080;
+    border: 1px solid #3b3b3b;
+    transform-style: preserve-3d;
+}
+.film-img {
+    visibility: hidden;
+}
+.film-frame:hover {
+    cursor: pointer;
+}
+.reveal-frame {
+    transform: rotate3d(0, 1, 0, 180deg); /* start with 180deg so that the image is not mirrored in the end */
+    content: url(film/film_back.png);
+    animation: reveal 0.75s ease-in-out forwards;
+}
+@keyframes reveal {
+    0% {
+        transform: rotate3d(0 1 0 180deg);
+        opacity: 1;
+    }
+    49% {
+        content: url(film/film_back.png);
+        opacity: 1;
+    }
+    50% {
+        content: var(--currImg);
+        opacity: 0;
+    }
+    100% {
+        transform: rotate3d(0, 1, 0, 0);
+        opacity: 1;
+        content: var(--currImg);
+    }
+}
+.hide-frame {
+    transform: rotate3d(0, 1, 0, 0);
+    content: var(--prevImg);
+    animation: hide 0.75s ease-in-out forwards;
+}
+@keyframes hide {
+    0% {
+        transform: rotate3d(0 1 0 0);
+        opacity: 1;
+    }
+    49% {
+        content: var(--prevImg);
+        opacity: 1;
+    }
+    50% {
+        content: url(film/film_back.png);
+        opacity: 0;
+    }
+    100% {
+        transform: rotate3d(0, 1, 0, 180deg);
+        opacity: 1;
+        content: url(film/film_back.png);
+    }
+}
+/* SCORE & 'NEXT' BUTTON */
+#film-result-container {
+    width: 14vw;
+    text-align: left;
+    position: absolute;
+    top: 5.5em; /* below toolbar */
+    right: 0;
+    padding: 0;
+}
+#film-moves-left, #film-guessed {color: white;}
+#film-guessed {margin-top: 1.5em;}
+#film-next-btn {
+    background-image: url(film/next_btn_1.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 12vw;/*1050x1079 - 5.8em*/
+    height: 8em;
+    position: absolute;
+    bottom: 6em;
+    right: 0;
+}
+#film-next-btn p {
+    color: white;
+    position: relative;
+    left: 1.6em;
+    top: 4.3em;
+    width: fit-content;
+}
+#film-next-btn p:hover {cursor: pointer;}
