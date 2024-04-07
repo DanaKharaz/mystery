@@ -131,39 +131,60 @@ function showGuessesAndMovesLeft() {
 
 /** 'NEXT' BUTTON **/
 
+// set initial background
 const nextBtnAnim = document.querySelector('#film-next-btn');
-const nextBtn = document.querySelector('#film-next-btn p');
+const context = nextBtnAnim.getContext('2d');
+const btnBackground = new Image();
+btnBackground.src = 'film/next_btn.png';
+const em = parseFloat(getComputedStyle(nextBtnAnim || document.documentElement).fontSize);
+btnBackground.onload = function() {
+    context.drawImage(btnBackground, 0, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
+};
 
+// buttom click
+const nextBtn = document.querySelector('#film-next-btn-text');
 nextBtn.addEventListener('click', nextBtnClick);
 async function nextBtnClick(event) {
     const delay = millis => new Promise((resolve, reject) => {setTimeout(_ => resolve(), millis)});
     if (moves == 0 || guesses == 12) {
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_2.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 1050, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_3.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 2100, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_4.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 3150, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_5.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 4200, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         nextBtn.removeEventListener('click', nextBtnClick);
         // TO-DO : continue to next game
     } else {
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_2.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 1050, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_3.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 2100, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_4.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 3150, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_5.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 4200, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_4.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 3150, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_3.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 2100, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_2.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 1050, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         await delay(40);
-        nextBtnAnim.style.backgroundImage = 'url(film/next_btn_1.png)';
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        context.drawImage(btnBackground, 0, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
     }
 }

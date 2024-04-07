@@ -306,20 +306,17 @@ hr {
 #film-moves-left, #film-guessed {color: white;}
 #film-guessed {margin-top: 1.5em;}
 #film-next-btn {
-    background-image: url(film/next_btn_1.png);
-    background-size: contain;
-    background-repeat: no-repeat;
-    width: 12vw;/*1050x1079 - 5.8em*/
+    width: 12vw;
     height: 8em;
     position: absolute;
     bottom: 6em;
     right: 0;
 }
-#film-next-btn p {
+#film-next-btn-text {
     color: white;
-    position: relative;
-    left: 1.6em;
-    top: 4.3em;
+    position: absolute;
+    left: calc(88vw + 1.5em);
+    bottom: 6.4em;
     width: fit-content;
 }
-#film-next-btn p:hover {cursor: pointer;}
+#film-next-btn-text:hover {cursor: pointer;}
