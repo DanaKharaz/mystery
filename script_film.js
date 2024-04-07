@@ -137,7 +137,6 @@ const nextBtn = document.querySelector('#film-next-btn p');
 nextBtn.addEventListener('click', nextBtnClick);
 async function nextBtnClick(event) {
     const delay = millis => new Promise((resolve, reject) => {setTimeout(_ => resolve(), millis)});
-    //moves = 0;
     if (moves == 0 || guesses == 12) {
         await delay(40);
         nextBtnAnim.style.backgroundImage = 'url(film/next_btn_2.png)';
@@ -147,6 +146,8 @@ async function nextBtnClick(event) {
         nextBtnAnim.style.backgroundImage = 'url(film/next_btn_4.png)';
         await delay(40);
         nextBtnAnim.style.backgroundImage = 'url(film/next_btn_5.png)';
+        nextBtn.removeEventListener('click', nextBtnClick);
+        // TO-DO : continue to next game
     } else {
         await delay(40);
         nextBtnAnim.style.backgroundImage = 'url(film/next_btn_2.png)';
