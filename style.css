@@ -202,6 +202,7 @@ hr {
     70% {transform: translate(9%, 4%);}
     90% {transform: translate(-1%, 7%);}
 }
+/* MINIGAME */
 #minigame {
     width: 100%;
     height: 100vh;
@@ -320,3 +321,23 @@ hr {
     width: fit-content;
 }
 #film-next-btn-text:hover {cursor: pointer;}
+
+/* ****************************************************** */
+
+/* BLACKOUT */
+#blackout-canvas {
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+#blackout-start-btn {
+    color: white;
+    font-size: large;
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+}
+#blackout-start-btn:hover {cursor: pointer;}

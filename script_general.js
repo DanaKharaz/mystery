@@ -75,4 +75,11 @@ function hintBtnOnClick(event) {
 /** ... **/
 
 const minigame = document.querySelector('#minigame');
-//minigame.src = 'test1.html';
+minigame.src = 'blackout.html'; // !!! CHANGE !!!
+
+window.addEventListener('message', function(event) {
+    if (event.data === 'film-won') {
+        // continue to blackout !!! FOR NOW !!!
+        minigame.src = 'blackout.html';
+    }
+});

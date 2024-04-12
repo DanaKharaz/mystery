@@ -1,5 +1,10 @@
 'use strict';
 
+//console.log(window.parent);
+//const myCustomData = { foo: 'bar' };
+//const event = new CustomEvent('myEvent', { detail: myCustomData });
+//window.parent.dispatchEvent(event);
+
 /** FILM GRID & SCORE **/
 
 const root = document.querySelector(':root');
@@ -146,7 +151,8 @@ const nextBtn = document.querySelector('#film-next-btn-text');
 nextBtn.addEventListener('click', nextBtnClick);
 async function nextBtnClick(event) {
     const delay = millis => new Promise((resolve, reject) => {setTimeout(_ => resolve(), millis)});
-    if (moves == 0 || guesses == 12) {
+
+    if (guesses == 12) {
         await delay(40);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         context.drawImage(btnBackground, 1050, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
@@ -160,7 +166,10 @@ async function nextBtnClick(event) {
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         context.drawImage(btnBackground, 4200, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
         nextBtn.removeEventListener('click', nextBtnClick);
-        // TO-DO : continue to next game
+        await delay(40);
+        
+        // notify parent
+        window.parent.postMessage('film-won', "*"); // https://javascriptbit.com/transfer-data-between-parent-window-and-iframe-postmessage-api/
     } else {
         await delay(40);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
