@@ -1,9 +1,9 @@
 'use strict';
 
-//console.log(window.parent);
-//const myCustomData = { foo: 'bar' };
-//const event = new CustomEvent('myEvent', { detail: myCustomData });
-//window.parent.dispatchEvent(event);
+window.addEventListener('message', function(event) {
+    console.log(event.data);
+    // TO-DO : listen for 'sound-on', 'sound-off'
+});
 
 /** FILM GRID & SCORE **/
 
@@ -71,7 +71,7 @@ async function revealOrHideFrame(event) {
     if (clickedFrames.includes(index)) { // this one is already clicked, so ignore
         return;
     } else { // reveal frame
-        root.style.setProperty('--currImg', 'url("film/' + imagesChosen[frameKeys[index]] + '.png")');
+        root.style.setProperty('--currImg', 'url("film_res/' + imagesChosen[frameKeys[index]] + '.png")');
         chosenFrame.classList.add('reveal-frame');
         chosenFrame.classList.remove('hide-frame');
         clickedFrames.push(index);
@@ -98,11 +98,11 @@ async function revealOrHideFrame(event) {
             isAnimating = true;
             await delay(500);
             filmFrames[clickedFrames[0]].classList.remove('reveal-frame');
-            root.style.setProperty('--prevImg', 'url("film/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")');
+            root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")');
             filmFrames[clickedFrames[0]].classList.add('hide-frame');
             await delay(375);
             filmFrames[clickedFrames[1]].classList.remove('reveal-frame');
-            root.style.setProperty('--prevImg', 'url("film/' + imagesChosen[frameKeys[clickedFrames[1]]] + '.png")');
+            root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[1]]] + '.png")');
             filmFrames[clickedFrames[1]].classList.add('hide-frame');
             await delay(375);
             isAnimating = false;
@@ -140,7 +140,7 @@ function showGuessesAndMovesLeft() {
 const nextBtnAnim = document.querySelector('#film-next-btn');
 const context = nextBtnAnim.getContext('2d');
 const btnBackground = new Image();
-btnBackground.src = 'film/next_btn.png';
+btnBackground.src = 'film_res/next_btn.png';
 const em = parseFloat(getComputedStyle(nextBtnAnim || document.documentElement).fontSize);
 btnBackground.onload = function() {
     context.drawImage(btnBackground, 0, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);

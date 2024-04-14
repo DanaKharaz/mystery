@@ -178,16 +178,16 @@ hr {
     animation: tv-glitch 1.8s linear infinite;
 }
 @keyframes tv-glitch {
-    0% {background-image: url('static_screen/1.png');}
-    74% {background-image: url('static_screen/1.png');}
-    77% {background-image: url('static_screen/2.png');}
-    90% {background-image: url('static_screen/2.png');}
-    93% {background-image: url('static_screen/3.png');}
+    0% {background-image: url(pause_res/1.png);}
+    74% {background-image: url(pause_res/1.png);}
+    77% {background-image: url(pause_res/2.png);}
+    90% {background-image: url(pause_res/2.png);}
+    93% {background-image: url(pause_res/3.png);}
 }
 #tv-noise {
     height: 200%;
     aspect-ratio: 1337 / 1080;
-    background-image: url(static_screen/noise.svg);
+    background-image: url(spause_res/noise.svg);
     opacity: 0.7;
     position: absolute;
     top: -50%;
@@ -216,8 +216,8 @@ hr {
 
 /* FILM */
 :root {
-    --currImg: url('film/The VVitch (2015).png'); /* default value, will be overriden by later */
-    --prevImg: url('film/The VVitch (2015).png'); /* default value, will be overriden by later */
+    --currImg: url('film_res/The VVitch (2015).png'); /* default value, will be overriden by later */
+    --prevImg: url('film_res/The VVitch (2015).png'); /* default value, will be overriden by later */
 }
 #film-grid {
     width: 72vw;
@@ -229,7 +229,7 @@ hr {
     padding: 0;
 }
 .film-frame {
-    content: url(film/film_back.png);
+    content: url(film_res/film_back.png);
     display: inline grid;
     justify-content: space-around;
     width: 10vw;
@@ -249,7 +249,7 @@ hr {
 }
 .reveal-frame {
     transform: rotate3d(0, 1, 0, 180deg); /* start with 180deg so that the image is not mirrored in the end */
-    content: url(film/film_back.png);
+    content: url(film_res/film_back.png);
     animation: reveal 0.75s ease-in-out forwards;
 }
 @keyframes reveal {
@@ -258,7 +258,7 @@ hr {
         opacity: 1;
     }
     49% {
-        content: url(film/film_back.png);
+        content: url(film_res/film_back.png);
         opacity: 1;
     }
     50% {
@@ -286,13 +286,13 @@ hr {
         opacity: 1;
     }
     50% {
-        content: url(film/film_back.png);
+        content: url(film_res/film_back.png);
         opacity: 0;
     }
     100% {
         transform: rotate3d(0, 1, 0, 180deg);
         opacity: 1;
-        content: url(film/film_back.png);
+        content: url(film_res/film_back.png);
     }
 }
 /* SCORE & 'NEXT' BUTTON */

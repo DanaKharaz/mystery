@@ -1,4 +1,18 @@
-"use strict";
+'use strict';
+
+/** MINIGAME INSIDE **/
+
+const minigame = document.querySelector('#minigame');
+minigame.src = 'film.html'; // !!! CHANGE !!!
+
+window.addEventListener('message', function(event) {
+    if (event.data === 'film-won') {
+        // continue to blackout !!! FOR NOW !!!
+        minigame.src = 'blackout.html';
+    }
+});
+
+/* ********************************************************************************************** */
 
 /** TOOLBAR **/
 
@@ -48,10 +62,12 @@ soundBtn.addEventListener('click', soundBtnClick);
 function soundBtnClick(event) {
     if (isMuted) {
         soundBtn.src = 'icons/sound_on_btn.svg';
-        // TO-DO : turn the sound on
+        // TO-DO : turn the sound on - send message to iframe
+        minigame.contentWindow.postMessage('sound-on', "*");
     } else {
         soundBtn.src = 'icons/sound_off_btn.svg';
         // TO-DO : turn the sound off
+        minigame.contentWindow.postMessage('sound-off', "*");
     }
     isMuted = !isMuted;
 }
@@ -69,17 +85,3 @@ hintBtn.addEventListener('click', hintBtnOnClick);
 function hintBtnOnClick(event) {
     // TO-DO : no hints left - propose a game to get hints; hints left - give a hint depending on the game
 }
-
-/* ********************************************************************************************** */
-
-/** ... **/
-
-const minigame = document.querySelector('#minigame');
-minigame.src = 'blackout.html'; // !!! CHANGE !!!
-
-window.addEventListener('message', function(event) {
-    if (event.data === 'film-won') {
-        // continue to blackout !!! FOR NOW !!!
-        minigame.src = 'blackout.html';
-    }
-});

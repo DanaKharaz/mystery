@@ -1,6 +1,11 @@
 'use strict';
 
-document.querySelector('body').style.backgroundImage = 'url(blackout/hidden_message_demo.png)';
+window.addEventListener('message', function(event) {
+    console.log(event.data);
+    // TO-DO : listen for 'sound-on', 'sound-off'
+});
+
+document.querySelector('body').style.backgroundImage = 'url(blackout_res/hidden_message_demo.png)';
 
 const canvas = document.querySelector('#blackout-canvas')
 const ctx = canvas.getContext('2d');
@@ -20,9 +25,9 @@ function revealHiddenMessage(event) {
     // show gradient right away
     const x = event.clientX * scaleX;
     const y = event.clientY * scaleY;
-    const gradient = ctx.createRadialGradient(x, y, 1, x, y, 10); // x, y - center of each circle
+    const gradient = ctx.createRadialGradient(x, y, 1, x, y, 13); // x, y - center of each circle
     gradient.addColorStop(0, '#00000000');
-    gradient.addColorStop(0.9, 'black');
+    gradient.addColorStop(1, 'black');
     ctx.clearRect(0, 0, canvas.width, canvas.height); // clear first
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -35,9 +40,9 @@ function translateGradient(event) {
     console.log(event, event.clientX, event.clientY);
     const x = event.clientX * scaleX;
     const y = event.clientY * scaleY;
-    const gradient = ctx.createRadialGradient(x, y, 1, x, y, 10); // x, y - center of each circle
+    const gradient = ctx.createRadialGradient(x, y, 1, x, y, 13); // x, y - center of each circle
     gradient.addColorStop(0, '#00000000');
-    gradient.addColorStop(0.9, 'black');
+    gradient.addColorStop(1, 'black');
     ctx.clearRect(0, 0, canvas.width, canvas.height); // clear first
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
