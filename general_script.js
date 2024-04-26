@@ -3,7 +3,7 @@
 /** MINIGAME INSIDE **/
 
 const minigame = document.querySelector('#minigame');
-minigame.src = 'film.html'; // !!! CHANGE !!!
+minigame.src = 'labyrinth.html'; // !!! CHANGE !!!
 
 window.addEventListener('message', function(event) {
     if (event.data === 'film-won') {

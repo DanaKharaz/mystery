@@ -341,3 +341,14 @@ hr {
     transform: translate(-50%, -50%);
 }
 #blackout-start-btn:hover {cursor: pointer;}
+
+/* ****************************************************** */
+
+/* LABYRINTH */
+#labyrinth-canvas {
+    background-color: gray;
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+}
