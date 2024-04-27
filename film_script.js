@@ -57,9 +57,9 @@ for (let i = 0; i < filmFrames.length; i++) {
     countTaken[randomKey]++;
 }
 
-async function revealOrHideFrame(event) {
-    const delay = millis => new Promise((resolve, reject) => {setTimeout(_ => resolve(), millis)});
+const delay = millis => new Promise((resolve, reject) => {setTimeout(_ => resolve(), millis)});
 
+async function revealOrHideFrame(event) {
     if (isAnimating) { // not to interrupt other animation
         await delay(10);
     }
@@ -150,8 +150,6 @@ btnBackground.onload = function() {
 const nextBtn = document.querySelector('#film-next-btn-text');
 nextBtn.addEventListener('click', nextBtnClick);
 async function nextBtnClick(event) {
-    const delay = millis => new Promise((resolve, reject) => {setTimeout(_ => resolve(), millis)});
-
     if (guesses == 12) {
         await delay(40);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
