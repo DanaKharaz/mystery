@@ -14,31 +14,37 @@ const frameKeys = []; // index of frame in filmFrames : index of image in images
 const countTaken = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 let guesses = 0;
 let moves = 20;
-const imagesAll = ["A Nightmare on Elm Street (1984)",
-                "A Quite Place (2018)",
-                "Alien (1979)",
-                "Beetlejuice (1988)",
-                "Frankenstein (1931)",
-                "Get Out (2017)",
-                "Halloween (1978)",
-                "Hereditary (2018)",
-                "It (2017)",
-                "Let Me In (2010)",
-                "Mama (2013)",
-                "Midsommar (2019)",
-                "Nosferatu (1922)",
-                "Psycho (1960)",
-                "Ready or Not (2019)",
-                "Sweeny Todd - The Demon Barber of Fleet Street (2007)",
-                "Talk to Me (2023)",
-                "The Exorcist (1973)",
-                "The Shining (1980)",
-                "The Silence of the Lambs (1991)",
-                "The Texas Chainsaw Massacare (1974)",
-                "The VVitch (2015)",
-                "Us (2019)",
-                "X (2022)"];
+const imagesAll = ['A Nightmare on Elm Street (1984)',
+                'A Quite Place (2018)',
+                'Alien (1979)',
+                'Beetlejuice (1988)',
+                'Frankenstein (1931)',
+                'Get Out (2017)',
+                'Halloween (1978)',
+                'Hereditary (2018)',
+                'It (2017)',
+                'Let Me In (2010)',
+                'Mama (2013)',
+                'Midsommar (2019)',
+                'Nosferatu (1922)',
+                'Psycho (1960)',
+                'Ready or Not (2019)',
+                'Sweeny Todd - The Demon Barber of Fleet Street (2007)',
+                'Talk to Me (2023)',
+                'The Exorcist (1973)',
+                'The Shining (1980)',
+                'The Silence of the Lambs (1991)',
+                'The Texas Chainsaw Massacare (1974)',
+                'The VVitch (2015)',
+                'Us (2019)',
+                'X (2022)'];
 imagesAll.sort(() => 0.5 - Math.random()); // randomly sort the array
+
+// send chosen movies to parent (for info panel)
+window.parent.postMessage('picking-films', '*');
+for (let i = 0; i < 12; i++) window.parent.postMessage(imagesAll[i], "*");
+window.parent.postMessage('picking-films', '*');
+
 const imagesChosen = imagesAll.slice(0, 12);
 let isAnimating = false;
 const guessedFrames = [false, false, false, false, false, false, false, false, false, false, false, false];
@@ -57,7 +63,7 @@ for (let i = 0; i < filmFrames.length; i++) {
     countTaken[randomKey]++;
 }
 
-const delay = millis => new Promise((resolve, reject) => {setTimeout(_ => resolve(), millis)});
+const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 
 async function revealOrHideFrame(event) {
     if (isAnimating) { // not to interrupt other animation
@@ -80,7 +86,7 @@ async function revealOrHideFrame(event) {
     // check guess
     if (clickedFrames.length === 2) {
         if (frameKeys[clickedFrames[0]] === frameKeys[clickedFrames[1]]) { // correct guess
-            // 'freeze' correctly guessed images and highlight them using border
+            // 'freeze' correctly guessed images
             filmFrames[clickedFrames[0]].removeEventListener('click', revealOrHideFrame);
             filmFrames[clickedFrames[1]].removeEventListener('click', revealOrHideFrame);
 
@@ -92,9 +98,6 @@ async function revealOrHideFrame(event) {
 
             guesses++;
         } else { // wrong guess
-            const delay = millis => new Promise((resolve, reject) => {
-                setTimeout(_ => resolve(), millis);
-            });
             isAnimating = true;
             await delay(500);
             filmFrames[clickedFrames[0]].classList.remove('reveal-frame');
@@ -167,7 +170,7 @@ async function nextBtnClick(event) {
         await delay(40);
         
         // notify parent
-        window.parent.postMessage('film-won', "*"); // https://javascriptbit.com/transfer-data-between-parent-window-and-iframe-postmessage-api/
+        window.parent.postMessage('film-won', '*'); // https://javascriptbit.com/transfer-data-between-parent-window-and-iframe-postmessage-api/
     } else {
         await delay(40);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);

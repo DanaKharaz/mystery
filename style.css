@@ -5,7 +5,10 @@ body {
 
 /* ****************************************************** */
 
+/* INDEX */
+
 /* START SCREEN */
+/* button and moon animation */
 #start-screen-container {
     position: fixed;
     top: 0;
@@ -57,7 +60,9 @@ body {
 
 /* ****************************************************** */
 
-/* TOOLBAR - GENERAL */
+/* GENERAL */
+
+/* TOOLBAR */
 #toolbar-container {
     position: fixed;
     width: 100%;
@@ -69,7 +74,6 @@ body {
     background-color: #3b3b3b;
     padding: 0.25em;
 }
-/* TOOLBAR - ITEM COLLECTION */
 #item-collection {
     display: inline-block;
     vertical-align: middle;
@@ -100,13 +104,13 @@ hr {
     scrollbar-width: thin;
     scrollbar-color: #666666 #292828;
     scrollbar-gutter: stable;
-    scroll-snap-align: start;
+    scroll-snap-align: start; /* cleaner look for puzzle pieces */
     overflow-x: hidden;
     height: 3.2em;
     vertical-align: middle;
 }
-#items-container:hover {overflow-x: scroll;}
-/* TOOLBAR - OPEN & CLOSE */
+#items-container:hover {overflow-x: auto;} /* when overflows, scrollbar seen only on hover */
+/* open & close */
 #toolbar-btn {
     background-color: #3b3b3b;
     border-radius: 0em 0em 0.25em 0.25em;
@@ -121,17 +125,17 @@ hr {
     margin: 0em;
 }
 #toolbar-btn:hover {cursor: pointer;}
-.opening-toolbar {animation: open-toolbar 1s forwards;}
+.opening-toolbar {animation: open-toolbar 0.75s forwards;}
 @keyframes open-toolbar {
     0% {top: -5.2em;}
     100% {top: 0em;}
 }
-.closing-toolbar {animation: close-toolbar 1s forwards;}
+.closing-toolbar {animation: close-toolbar 0.75s forwards;}
 @keyframes close-toolbar {
     0% {top: 0em;}
     100% {top: -5.2em;}
 }
-/* TOOLBAR - SIDE BUTTONS */
+/* side buttons */
 #side-btns-container {
     display: inline;
     float: right;
@@ -151,9 +155,39 @@ hr {
     filter: drop-shadow(0 0 1em white);
 }
 
-/* ****************************************************** */
+/* INFO PANEL */
+#info-panel {
+    width: 22vw;
+    height: fit-content;
+    max-height: 75vh;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #666666 #292828;
+    scrollbar-gutter: stable;
+    position: fixed;
+    top: 5.8em;
+    right: -24vw;
+    z-index: 1; /* show above elements of iframe (minigame) */
+    border: white solid 0.1em;
+    background-color: black;
+    color: white;
+    padding: 0.3em;
+    padding-left: 0.5em;
+}
+#info-panel:hover {overflow-y: auto;} /* when overflows, scrollbar seen only on hover */
+.opening-info-panel {animation: open-info-panel 1s ease-in-out forwards;}
+@keyframes open-info-panel {
+    0% {right: -22vw;}
+    100% {right: 0.4em;}
+}
+.closing-info-panel {animation: close-info-panel 1s ease-in-out forwards;}
+@keyframes close-info-panel {
+    0% {right: 0.4em;}
+    100% {right: -24vw;}
+}
 
-/* PAUSE SCREEN - TV */
+/* PAUSE SCREEN */
+/* tv */
 #pause-screen-hidden, #pause-screen-shown {
     height: 80vh;
     padding-top: 15vh;
@@ -161,7 +195,6 @@ hr {
 }
 #pause-screen-hidden {display: none;} /* initially hidden */
 #pause-screen-shown {display: auto;}
-/* PAUSE SCREEN - ANIMATED TV SCREEN */
 #screen-frame {
     aspect-ratio: 1337 / 1080;
     height: 70vh;
@@ -202,6 +235,7 @@ hr {
     70% {transform: translate(9%, 4%);}
     90% {transform: translate(-1%, 7%);}
 }
+
 /* MINIGAME */
 #minigame {
     width: 100%;
@@ -211,14 +245,16 @@ hr {
     left: 0;
     border: none;
 }
+.transition-game-out {animation: minigame-fade-out 0.75s ease-in-out forwards;}
+@keyframes minigame-fade-out {from{opacity: 1;} to{opacity: 0;}}
+.transition-game-in {animation: minigame-fade-in 0.75s ease-in-out forwards;}
+@keyframes minigame-fade-in {from{opacity: 0;} to{opacity: 1;}}
 
 /* ****************************************************** */
 
 /* FILM */
-:root {
-    --currImg: url('film_res/The VVitch (2015).png'); /* default value, will be overriden by later */
-    --prevImg: url('film_res/The VVitch (2015).png'); /* default value, will be overriden by later */
-}
+
+/* GRID */
 #film-grid {
     width: 72vw;
     text-align: center;
@@ -246,6 +282,11 @@ hr {
 }
 .film-frame:hover {
     cursor: pointer;
+}
+/* flipping items */
+:root {
+    --currImg: url('film_res/The VVitch (2015).png'); /* default value, will be overriden by later */
+    --prevImg: url('film_res/The VVitch (2015).png'); /* default value, will be overriden by later */
 }
 .reveal-frame {
     transform: rotate3d(0, 1, 0, 180deg); /* start with 180deg so that the image is not mirrored in the end */
@@ -295,6 +336,7 @@ hr {
         content: url(film_res/film_back.png);
     }
 }
+
 /* SCORE & 'NEXT' BUTTON */
 #film-result-container {
     width: 14vw;
@@ -316,9 +358,10 @@ hr {
 #film-next-btn-text {
     color: white;
     position: absolute;
-    left: calc(88vw + 1.5em);
+    right: 12vw;
     bottom: 6.4em;
     width: fit-content;
+    transform: translateX(6em); /* hallfway through image beneath */
 }
 #film-next-btn-text:hover {cursor: pointer;}
 
@@ -345,6 +388,8 @@ hr {
 /* ****************************************************** */
 
 /* LABYRINTH */
+
+/* 2D MAZE */
 #labyrinth-canvas {
     background-color: black;
     position: fixed;

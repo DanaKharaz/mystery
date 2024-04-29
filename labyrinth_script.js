@@ -1,7 +1,5 @@
 'use strict';
 
-const delay = millis => new Promise((resolve, reject) => {setTimeout(_ => resolve(), millis)});
-
 const canvas = document.querySelector('#labyrinth-canvas')
 const ctx = canvas.getContext('2d');
 
@@ -84,10 +82,10 @@ for (let col = 1; col < size - 1; col++) {
 
 // more complexity to the maze - need to collect 5 items before leaving
 let items = [];
-while (items.length < 5) {
-    const  itemRow = Math.floor(Math.random()*size);
+while (items.length < 20) {
+    const itemRow = Math.floor(Math.random()*size);
     const itemCol = Math.floor(Math.random()*size);
-    if (!items.includes([itemRow, itemCol]) && maze[itemRow][itemCol] != 1) items.push([itemRow, itemCol]);
+    if (!items.includes([itemRow, itemCol]) && maze[itemRow][itemCol] != 1 && ![0, size - 1].includes(itemCol)) items.push([itemRow, itemCol]);
 }
 
 /* ********************************************************************************************** */
@@ -106,14 +104,17 @@ const offY = (canvas.width/frac)*0.1;
 
 // draw the maze
 ctx.fillStyle = '#666666';
-ctx.fillRect(3*x, 0, (frac - 6)*x, (frac - 6)*y);
-for (let col = 0; col < (frac - 6); col++) {
+ctx.fillRect(3*x, 0, size*x, size*y);
+for (let col = 0; col < size; col++) {
     for (let row = 0; row < (frac - 6); row++) {
         if (maze[row][col] === 0 || maze[row][col] === 8) {
-            ctx.clearRect((col + 3)*x, row*y, x, y);
+            ctx.clearRect((col + 3)*x - 0.5, row*y - 0.5, x + 1, y + 1); // '+3' to accomodate for emty space before the maze, '-0.5' and '+1' to eliminate thin lines between cells
         }
     }
 }
+// 'clean up' the maze entry and exit (there is a thin gray line there otherwise)
+ctx.clearRect(3*x - 2, 1*y, 4, y);
+ctx.clearRect((size + 3)*x - 2, (size - 2)*y, 4, y);
 
 // place items in the maze
 ctx.fillStyle = '#ffffff';
@@ -143,7 +144,9 @@ let prevI, prevJ;
 
 let isAnimating = false;
 
-async function draw(dx, dy, entering = false, exiting = false) { // TO-DO : redraw items when overlapping ???
+const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
+
+async function drawCircle(dx, dy, entering = false, exiting = false) {
     isAnimating = true;
 
     if (entering) prevI = -2; // start  from a non-existing cell before maxe entrance
@@ -183,9 +186,9 @@ async function draw(dx, dy, entering = false, exiting = false) { // TO-DO : redr
     isAnimating = false;
 }
 
-window.addEventListener('keydown', movement);
+window.addEventListener('keydown', moveCircle);
 
-async function movement(event) {
+async function moveCircle(event) {
     if (isAnimating) return; // should not interrupt current animation
 
     // initinal position
@@ -204,14 +207,14 @@ async function movement(event) {
             while (maze[currJ][currI] === 0) currI++;
             if (maze[currJ][currI] != 8) currI--; // will go into a wall otherwise
             if (!started) {
-                draw(step, 0, true);
+                drawCircle(step, 0, true);
                 started = true;
             }
             else if (currI == (frac - 6 - 1) && currJ == (frac - 6 - 2)) {
-                draw(step, 0, false, true);
+                drawCircle(step, 0, false, true);
                 mazeSolved();
             } else {
-                draw(step, 0);
+                drawCircle(step, 0);
             }
 
             for (let k = 0; k < items.length; k++) { // check if any items were collected
@@ -225,7 +228,7 @@ async function movement(event) {
             currJ++; // start moving (here beacause loop below won't move from crossroad)
             while (maze[currJ][currI] === 0) currJ++;
             if (maze[currJ][currI] != 8) currJ--; // will go into a wall otherwise
-            draw(0, step);
+            drawCircle(0, step);
 
             for (let k = 0; k < items.length; k++) { // check if any items were collected
                 if (!(prevJ < items[k][0] && items[k][0] <= currJ && currI === items[k][1])) itemsNew.push(items[k]);
@@ -238,7 +241,7 @@ async function movement(event) {
             currI--; // start moving (here beacause loop below won't move from crossroad)
             while (maze[currJ][currI] === 0) currI--;
             if (maze[currJ][currI] != 8) currI++; // will go into a wall otherwise
-            draw(-step, 0);
+            drawCircle(-step, 0);
 
             for (let k = 0; k < items.length; k++) { // check if any items were collected
                 if (!(prevI > items[k][1] && items[k][1] >= currI && currJ === items[k][0])) itemsNew.push(items[k]);
@@ -251,7 +254,7 @@ async function movement(event) {
             currJ--; // start moving (here beacause loop below won't move from crossroad)
             while (maze[currJ][currI] === 0) currJ--;
             if (maze[currJ][currI] != 8) currJ++; // will go into a wall otherwise
-            draw(0, -step);
+            drawCircle(0, -step);
 
             for (let k = 0; k < items.length; k++) { // check if any items were collected
                 if (!(prevJ > items[k][0] && items[k][0] >= currJ && currI === items[k][1])) itemsNew.push(items[k]);
