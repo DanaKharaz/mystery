@@ -146,6 +146,27 @@ let isAnimating = false;
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 
+let dx, dy, arcX, arcY, finalArcX, finalArcY, clearX, clearY;
+/*function drawCircleAux() {
+    ctx.clearRect(clearX, clearY, x, y);
+
+    arcX += dx;
+    arcY += dy;
+    clearX += dx;
+    clearY += dy;
+
+    ctx.beginPath();
+    ctx.arc(arcX, arcY, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+
+    if (!(dx > 0 && arcX <= finalArcX ||
+        dx < 0 && arcX >= finalArcX ||
+        dy > 0 && arcY <= finalArcY ||
+        dy < 0 && arcY >= finalArcY)) {
+            requestAnimationFrame(drawCircleAux);
+    }
+}*/
 async function drawCircle(dx, dy, entering = false, exiting = false) {
     isAnimating = true;
 
@@ -153,16 +174,19 @@ async function drawCircle(dx, dy, entering = false, exiting = false) {
     if (exiting) currI = frac - 6 + 1; // end at  a non-existing cell after maze exit
 
     // initial circle position
-    let arcX = (prevI + 4)*x - radius - offX;
-    let arcY = (prevJ + 1)*y - radius - offY;
-    let clearX = (prevI + 3)*x;
-    let clearY = prevJ*y;
+    arcX = (prevI + 4)*x - radius - offX;
+    arcY = (prevJ + 1)*y - radius - offY;
+    finalArcX = (currI + 4)*x - radius - offX;
+    finalArcY = (currJ + 1)*y - radius - offY
+    clearX = (prevI + 3)*x;
+    clearY = prevJ*y;
 
     // move circle until needed position is reached
-    while (dx > 0 && arcX <= (currI + 4)*x - radius - offX ||
-           dx < 0 && arcX >= (currI + 4)*x - radius - offX ||
-           dy > 0 && arcY <= (currJ + 1)*y - radius - offY ||
-           dy < 0 && arcY >= (currJ + 1)*y - radius - offY) {
+    //drawCircleAux();
+    while (dx > 0 && arcX <= finalArcX ||
+           dx < 0 && arcX >= finalArcX ||
+           dy > 0 && arcY <= finalArcY ||
+           dy < 0 && arcY >= finalArcY) {
         await delay(3);
         ctx.clearRect(clearX, clearY, x, y);
 
@@ -176,6 +200,7 @@ async function drawCircle(dx, dy, entering = false, exiting = false) {
         ctx.fill();
         ctx.closePath();
     }
+
     // draw at final position (in case of discreptancies due to adding/subtracting steps)
     ctx.clearRect((currI + 3)*x, currJ*y, x, y);
     ctx.beginPath();

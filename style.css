@@ -101,15 +101,31 @@ hr {
 #items-container {
     display: inline-block;
     width: calc(100% - 5.1em);
-    scrollbar-width: thin;
     scrollbar-color: #666666 #292828;
     scrollbar-gutter: stable;
-    scroll-snap-align: start; /* cleaner look for puzzle pieces */
-    overflow-x: hidden;
+    scrollbar-width: none; /* no need to show unless hovering */
+    overflow-x: hidden; /* no need to show unless hovering */
+    overflow-y: hidden;
+    overflow-x: overlay; /* less bulky scrollbar (Firefox only) */
+    white-space: nowrap; /* to not progress on other line */
     height: 3.2em;
     vertical-align: middle;
+    align-items: self-start;
 }
-#items-container:hover {overflow-x: auto;} /* when overflows, scrollbar seen only on hover */
+#items-container:hover { /* when overflows, scrollbar seen only on hover (thin in Chrome and extendable in Firefox) */
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+.puzzle-piece {
+    display: inline-block;
+    height: 2.48em; /* not as percentage to work around removal of overflow: overlay from Chrome - the elements would get smaller when scrollbar appears otherwise */
+    aspect-ratio: 1 / 1;
+    transform: translateY(0.4em);
+    margin: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url(puzzle_res/1.png);
+}
 /* open & close */
 #toolbar-btn {
     background-color: #3b3b3b;
@@ -154,9 +170,43 @@ hr {
     cursor: pointer;
     filter: drop-shadow(0 0 1em white);
 }
+#hint-tooltip {
+    visibility: hidden;
+    font-size: small;
+    background-color: black;
+	border: 0.1em solid white;
+    color: white;
+	position: absolute;
+    top: 7.2em;
+    transform: translateX(-2.22em);
+	padding: 0.4em;
+}
+#hint-tooltip:before {
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+    left: 50%;
+	top: 0;
+    transform: translate(-50%, -100%);
+	border: 0.8em solid;
+	border-color: transparent transparent white transparent;
+}
+#hint-tooltip:after {
+    content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 50%;
+	top: 0;
+    transform: translate(-50%, -95%); /* 99% to avoid thin line below */
+	border: 0.8em solid;
+	border-color: transparent transparent black transparent;
+}
+#hint-btn:hover ~ #hint-tooltip {visibility: visible} /* show only when hovering over the hint button */
 
-/* INFO PANEL */
-#info-panel {
+/* SIDE (INFO / HINT) PANEL */
+#side-panel {
     width: 22vw;
     height: fit-content;
     max-height: 75vh;
@@ -174,14 +224,14 @@ hr {
     padding: 0.3em;
     padding-left: 0.5em;
 }
-#info-panel:hover {overflow-y: auto;} /* when overflows, scrollbar seen only on hover */
-.opening-info-panel {animation: open-info-panel 1s ease-in-out forwards;}
-@keyframes open-info-panel {
+#side-panel:hover {overflow-y: auto;} /* when overflows, scrollbar seen only on hover */
+.opening-side-panel {animation: open-side-panel 1s ease-in-out forwards;}
+@keyframes open-side-panel {
     0% {right: -22vw;}
     100% {right: 0.4em;}
 }
-.closing-info-panel {animation: close-info-panel 1s ease-in-out forwards;}
-@keyframes close-info-panel {
+.closing-side-panel {animation: close-side-panel 1s ease-in-out forwards;}
+@keyframes close-side-panel {
     0% {right: 0.4em;}
     100% {right: -24vw;}
 }
@@ -243,12 +293,44 @@ hr {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: -1; /* below all toolbar elements (e.g. pause screen) */
     border: none;
 }
 .transition-game-out {animation: minigame-fade-out 0.75s ease-in-out forwards;}
 @keyframes minigame-fade-out {from{opacity: 1;} to{opacity: 0;}}
 .transition-game-in {animation: minigame-fade-in 0.75s ease-in-out forwards;}
 @keyframes minigame-fade-in {from{opacity: 0;} to{opacity: 1;}}
+
+/* SPEECH BUBBLES */
+.speech-bubble {
+    background-color: black;
+	border: 0.1em solid white;
+	border-radius: 1em;
+    color: white;
+	position: relative;
+	width: 15vw;
+	padding: 0.5em;
+}
+.speech-bubble:before {
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+    left: 1.4em;
+	bottom: -2.2em;
+	border: 1.1em solid;
+	border-color: white transparent transparent white;
+}
+.speech-bubble:after {
+    content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 1.5em;
+	bottom: -2em;
+	border: 1em solid;
+	border-color: black transparent transparent black;
+}
 
 /* ****************************************************** */
 
