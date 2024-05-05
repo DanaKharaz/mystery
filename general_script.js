@@ -156,19 +156,154 @@ async function hintBtnOnClick(event) {
 
 /* PUZZLE PIECES */
 let completed = 0;
-// TO-DO : arrange puzzle pieces in a random order in toolbar and hide all of them for now
-const puzzlePieces = document.querySelectorAll('.puzzle-piece');
-const usedPieces = [];
+// arrange puzzle pieces in a random order in toolbar and hide all of them for now
+const puzzlePieces = Array.from(document.querySelectorAll('.puzzle-piece'));
+const puzzlePiecesUse = Array.from(document.querySelectorAll('.puzzle-piece-use'));
+const usedPiecesIdx = [];
+//const piecesRotations = new Array(48);
 for (let i = 0; i < puzzlePieces.length; i++) {
     let k;
     do {
         k = Math.floor(Math.random()*puzzlePieces.length) + 1; // '+1' as images are numbered from 1, not 0
-    } while (usedPieces.includes(k));
-    usedPieces.push(k);
+    } while (usedPiecesIdx.includes(k - 1));
+    usedPiecesIdx.push(k - 1);
     puzzlePieces[i].style.backgroundImage = 'url(puzzle_res/' + k + '.png)';
-    puzzlePieces[i].style.transform = 'translateY(0.4em) rotate(' + Math.floor(Math.random()*4)*90 + 'deg)'; // must repeat 'translate'
+    /*const r = Math.floor(Math.random()*4)*90;
+    piecesRotations[i] = r;
+    puzzlePieces[i].style.transform = 'translateY(0.4em) rotate(' + r + 'deg)'; // must repeat 'translate'*/
+    // !!! TEST
+    puzzlePieces[i].classList.remove('puzzle-piece-hidden');
 }
-console.log(usedPieces);
+
+/* SOLVING PUZZLE */
+
+// TO-DO : only when starting puzzle !!!
+
+// reveal puzzle grid
+const puzzleGrid = document.querySelector('#puzzle-grid');
+puzzleGrid.style.display = 'initial';
+
+// piece sizes depend on window height
+const frac = window.innerHeight*0.75/1080;
+const h = frac*275 + 'px';
+const centerX = (frac*(719.5 - 137.5)) + 'px';
+const centerY = (frac*(540 - 137.5)) + 'px';
+
+// drag pieces from toolbar to puzzle grid
+const playablePieces = []; // indexes of pieces dropped into grid
+let draggedPiece;
+for (let i = 0; i < 48; i++) {puzzlePieces[i].addEventListener('dragstart', startDraggingPiece);}
+function startDraggingPiece(event) {
+    draggedPiece = event.target;
+    draggedPiece.style.cursor = 'draging';
+}
+puzzleGrid.addEventListener('dragover', (event) => event.preventDefault(), false);
+puzzleGrid.addEventListener('drop', (event) => {
+    event.preventDefault();
+
+    const idx = usedPiecesIdx[puzzlePieces.indexOf(draggedPiece)];
+
+    const pieceUse = puzzlePiecesUse[idx];
+    pieceUse.display = 'inherit';
+    pieceUse.style.backgroundImage = 'url(puzzle_res/' + (idx + 1) + '.png)';
+    pieceUse.style.height = h;
+    pieceUse.style.left = centerX;
+    pieceUse.style.top = centerY;
+    console.log(idx);
+    /*event.target.appendChild(draggedPiece);
+    draggedPiece.classList.remove('puzzle-piece');
+    draggedPiece.classList.add('puzzle-piece-use');
+    //draggedPiece.style.transform = 'rotate(' + piecesRotations[usedPiecesIdx[puzzlePieces.indexOf(draggedPiece)]] + 'deg)';
+    draggedPiece.style.height = h;
+    // place piece in the center of the grid
+    draggedPiece.style.left = centerX;
+    draggedPiece.style.top = centerY;
+    console.log(draggedPiece.style, centerX, centerY);*/
+
+    // not using drag event further to a) not have the 'drop' cursor; b) not have strange shadows due to rotation
+    //draggedPiece.setAttribute('draggable', false);
+    //draggedPiece.removeEventListener('dragstart', startDraggingPiece);
+    draggedPiece.remove();
+
+    playablePieces.push(idx);
+
+    /*draggedPiece.addEventListener('dblclick', (event) => {
+        const index = usedPiecesIdx[puzzlePieces.indexOf(event.target)];
+        console.log(index, piecesRotations[index]);
+        const r = (piecesRotations[index] + 90) % 360;
+        piecesRotations[index] = r;
+        event.target.style.transform = 'rotate(' + r + 'deg)';
+        console.log(piecesRotations, event.target.style.transform);
+    });*/
+});
+
+// move pieces inside the puzzle grid
+const ppuPlacements = [[-48, -47], [-48, 131], [-44, 310], [-48, 490], [-44, 673], [-48, 853], [-44, 1031], [-48, 1208],
+                       [134, -43], [131, 135], [127, 306], [140, 486], [127, 672], [134, 860], [134, 1032], [140, 1201],
+                       [314, -44], [314, 135], [306, 322], [312, 500], [306, 681], [306, 852], [320, 1023], [314, 1201],
+                       [494, -44], [493, 135], [493, 307], [484, 493], [484, 673], [492, 844], [492, 1023], [484, 1200],
+                       [672, -44], [680, 135], [669, 312], [672, 491], [672, 670], [671, 849], [672, 1028], [672, 1208],
+                       [848, -46], [849, 131], [849, 315], [852, 495], [852, 671], [852, 851], [852, 1032], [849, 1210]]; // proper placements for each piece (will be adjusted to window height)
+
+const piecesPlaced = []; // indexes of already placed pieces
+let offX, offY; // differences between cursor and piece position
+let movingPiece; // element being moved
+let idx = -1; // index of the piece being moved in puzzlePieces
+let isMoving = false;
+const nearFactor = frac*20; // place correctly if moved close enough
+
+// listeners applied to entire window with if statements within functions
+window.addEventListener('mousedown', startMovingPiece);
+window.addEventListener('mousemove', movePiece);
+window.addEventListener('mouseup', stopMovingPiece);
+function startMovingPiece(event) {
+    //idx = usedPiecesIdx[puzzlePieces.indexOf(event.target)];
+    idx = puzzlePiecesUse.indexOf(event.target);
+    if (idx != -1 && playablePieces.includes(idx) && !piecesPlaced.includes(idx)) {
+        isMoving = true;
+        
+        event.target.style.cursor = 'grabbing';
+
+        // determine where withing the pieces the cursor is located (for movePiece)
+        const currX = event.target.style.left.slice(0, event.target.style.left.length - 2);
+        const currY = event.target.style.top.slice(0, event.target.style.top.length - 2);
+        offX = event.clientX - currX;
+        offY = event.clientY - currY;
+
+        movingPiece = event.target;
+    }
+}
+function movePiece(event) {
+    if (isMoving) {
+        movingPiece.style.left = (event.clientX - offX) + 'px';
+        movingPiece.style.top = (event.clientY - offY) + 'px';
+    }
+}
+function stopMovingPiece(event) {
+    if (isMoving) {
+        console.log('check');
+        // check if the piece is close enough to its true place and correctly rotated
+        //const idx = usedPiecesIdx[puzzlePieces.indexOf(event.target)];
+        const currX = movingPiece.style.left.slice(0, movingPiece.style.left.length - 2);
+        const currY = movingPiece.style.top.slice(0, movingPiece.style.top.length - 2);
+        const trueX = ppuPlacements[idx][1]*frac;
+        const trueY = ppuPlacements[idx][0]*frac;
+        //console.log(piecesRotations, idx, movingPiece.style.transform);
+        //if (piecesRotations[idx] == 0 && Math.sqrt((trueX - currX)**2 + (trueY - currY)**2) <= nearFactor) { // 'snap' the piece in place, can't be moved anymore
+        if (Math.sqrt((trueX - currX)**2 + (trueY - currY)**2) <= nearFactor) { // 'snap' the piece in place, can't be moved anymore
+            movingPiece.style.left = trueX + 'px';
+            movingPiece.style.top = trueY + 'px';
+            movingPiece.style.cursor = 'auto';
+            piecesPlaced.push(idx);
+            if (piecesPlaced.length == 48) {puzzleSolved();}
+        } else {movingPiece.style.cursor = 'grab';} // keep it moveable otherwise
+        isMoving = false;
+    }
+}
+function puzzleSolved() {
+    // TO-DO : finish entire game
+    console.log('Puzzle Solved!');
+}
 
 /* ********************************************************************************************** */
 
@@ -177,6 +312,8 @@ console.log(usedPieces);
 const minigame = document.querySelector('#minigame');
 let currGame = 'labyrinth1'; // !!! CHANGE !!!
 minigame.src = 'labyrinth.html'; // !!! CHANGE !!!
+// !!! TEST
+minigame.style.display = 'none';
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 

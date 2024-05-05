@@ -1,7 +1,7 @@
 'use strict';
 
 window.addEventListener('message', function(event) {
-    console.log(event.data);
+    //event.data
     // TO-DO : listen for 'sound-on', 'sound-off'
 });
 
@@ -46,6 +46,7 @@ for (let i = 0; i < 12; i++) window.parent.postMessage(imagesAll[i], "*");
 window.parent.postMessage('picking-films', '*');
 
 const imagesChosen = imagesAll.slice(0, 12);
+for (let i = 1; i <= 12; i++) root.style.setProperty('--img' + i, 'url("film_res/' + imagesChosen[i] + '.png")');
 let isAnimating = false;
 const guessedFrames = [false, false, false, false, false, false, false, false, false, false, false, false];
 const movesTxt = document.querySelector('#film-moves-left');
@@ -72,6 +73,7 @@ async function revealOrHideFrame(event) {
 
     const chosenFrame = event.target;
     const index = filmFrames.indexOf(chosenFrame);
+    // !!! const key = frameKeys.indexOf(index) + 1;
 
     // action
     if (clickedFrames.includes(index)) { // this one is already clicked, so ignore
@@ -80,6 +82,8 @@ async function revealOrHideFrame(event) {
         root.style.setProperty('--currImg', 'url("film_res/' + imagesChosen[frameKeys[index]] + '.png")');
         chosenFrame.classList.add('reveal-frame');
         chosenFrame.classList.remove('hide-frame');
+        /* !!! chosenFrame.classList.add('reveal-frame' + key);
+        chosenFrame.classList.remove('hide-frame' + key); */
         clickedFrames.push(index);
     }
 
@@ -90,6 +94,10 @@ async function revealOrHideFrame(event) {
             filmFrames[clickedFrames[0]].removeEventListener('click', revealOrHideFrame);
             filmFrames[clickedFrames[1]].removeEventListener('click', revealOrHideFrame);
 
+            // remove pointers
+            filmFrames[clickedFrames[0]].classList.add('film-frame-done');
+            filmFrames[clickedFrames[1]].classList.add('film-frame-done');
+
             guessedFrames[clickedFrames[0]] = true;
             guessedFrames[clickedFrames[1]] = true;
 
@@ -99,6 +107,7 @@ async function revealOrHideFrame(event) {
             guesses++;
         } else { // wrong guess
             isAnimating = true;
+            // !!! await delay(1000);
             await delay(500);
             filmFrames[clickedFrames[0]].classList.remove('reveal-frame');
             root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")');
@@ -108,6 +117,13 @@ async function revealOrHideFrame(event) {
             root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[1]]] + '.png")');
             filmFrames[clickedFrames[1]].classList.add('hide-frame');
             await delay(375);
+            /* !!! const k0 = frameKeys.indexOf(clickedFrames[0]) + 1;
+            const k1 = frameKeys.indexOf(clickedFrames[1]) + 1;
+            filmFrames[clickedFrames[0]].classList.remove('reveal-frame' + k0);
+            filmFrames[clickedFrames[0]].classList.add('hide-frame' + k0);
+            filmFrames[clickedFrames[1]].classList.remove('reveal-frame' + k1);
+            filmFrames[clickedFrames[1]].classList.add('hide-frame' + k1);
+            await delay(375); */
             isAnimating = false;
             clickedFrames.splice(0, 2);
         }
@@ -120,12 +136,18 @@ async function revealOrHideFrame(event) {
     if (guesses === 12) {
         // TO-DO : game won
         console.log('You have won!');
-        for (let frame of filmFrames) {frame.removeEventListener('click', revealOrHideFrame);}
+        for (let frame of filmFrames) {
+            frame.removeEventListener('click', revealOrHideFrame);
+            frame.classList.add('film-frame-done'); // remove pointer when hovering
+        }
     }
     if (moves === 0) {
         // TO-DO : game over
         console.log("Game Over!");
-        for (let frame of filmFrames) {frame.removeEventListener('click', revealOrHideFrame);}
+        for (let frame of filmFrames) {
+            frame.removeEventListener('click', revealOrHideFrame);
+            frame.classList.add('film-frame-done'); // remove pointer when hovering
+        }
     }
 }
 
