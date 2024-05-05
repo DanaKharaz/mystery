@@ -2,7 +2,7 @@
 
 window.addEventListener('message', function(event) {
     console.log(event.data);
-    // TO-DO : listen for 'sound-on', 'sound-off'
+    // TODO : listen for 'sound-on', 'sound-off'
 });
 
 document.querySelector('body').style.backgroundImage = 'url(blackout_res/hidden_message_demo.png)';

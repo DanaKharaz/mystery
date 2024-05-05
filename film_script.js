@@ -2,7 +2,7 @@
 
 window.addEventListener('message', function(event) {
     //event.data
-    // TO-DO : listen for 'sound-on', 'sound-off'
+    // TODO : listen for 'sound-on', 'sound-off'
 });
 
 /** FILM GRID & SCORE **/
@@ -134,7 +134,7 @@ async function revealOrHideFrame(event) {
 
     // if done
     if (guesses === 12) {
-        // TO-DO : game won
+        // TODO : game won
         console.log('You have won!');
         for (let frame of filmFrames) {
             frame.removeEventListener('click', revealOrHideFrame);
@@ -142,7 +142,7 @@ async function revealOrHideFrame(event) {
         }
     }
     if (moves === 0) {
-        // TO-DO : game over
+        // TODO : game over
         console.log("Game Over!");
         for (let frame of filmFrames) {
             frame.removeEventListener('click', revealOrHideFrame);

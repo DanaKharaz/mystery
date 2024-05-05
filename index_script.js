@@ -10,5 +10,5 @@ async function transitionFirstGame(event) {
     await delay(3500);
     startBtnContainer.style.display = 'none'; // not visible anymore - no need to keep rotation
 
-    // TO-DO : transition to the first game OR intro screen
+    // TODO : transition to the first game OR intro screen
 }

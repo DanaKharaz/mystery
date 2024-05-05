@@ -39,7 +39,7 @@ function pauseBtnOnClick(event) {
 }
 
 /* PAUSE SCREEN CANVAS */
-// TO-DO !!!
+// TODO !!!
 
 /* SOUND */
 const soundBtn = document.querySelector('#sound-btn');
@@ -48,11 +48,11 @@ soundBtn.addEventListener('click', soundBtnClick);
 function soundBtnClick(event) {
     if (isMuted) {
         soundBtn.src = 'icons/sound_on_btn.svg';
-        // TO-DO : turn the sound on - send message to iframe
+        // TODO : turn the sound on - send message to iframe
         minigame.contentWindow.postMessage('sound-on', "*");
     } else {
         soundBtn.src = 'icons/sound_off_btn.svg';
-        // TO-DO : turn the sound off
+        // TODO : turn the sound off
         minigame.contentWindow.postMessage('sound-off', "*");
     }
     isMuted = !isMuted;
@@ -64,7 +64,7 @@ const sidePanel = document.querySelector('#side-panel');
 let infoPanelShown = false;
 infoBtn.addEventListener('click', infoBtnOnClick);
 async function infoBtnOnClick(event) {
-    // TO-DO : display a small side window with info about how to play (no hints!) and sound/reference info (?) - for refs make small sep html page (new tab)??
+    // TODO : display a small side window with info about how to play (no hints!) and sound/reference info (?) - for refs make small sep html page (new tab)??
 
     // hide hint panel, in case it is shown
     if (hintPanelShown) {
@@ -80,9 +80,9 @@ async function infoBtnOnClick(event) {
         sidePanel.classList.add('closing-side-panel');
     } else {
         // set correct text to panel
-        switch(currGame) { // TO-DO : arrange in proper order (for readability)
+        switch(currGame) { // TODO : arrange in proper order (for readability)
             case 'film':
-                // TO-DO
+                // TODO
                 let references = '';
                 filmsIncl.sort();
                 for (let i = 0; i < 12; i++) references += '<i>' + filmsIncl[i].slice(0, -6) + '</i>' + filmsIncl[i].slice(-6) + ', <br>';
@@ -90,18 +90,18 @@ async function infoBtnOnClick(event) {
                 sidePanel.innerHTML = '<b>game rules</b>: each piece of film has a movie scene on the other side, there are 12 pairs of scenes; click on any 2 pieces to temporarily reveal the scenes behind; find all pairs before running out of moves<br><br><b>references</b>:<br>' + references + '<br><br><b>music</b>: ???';
                 break;
             case 'blackout':
-                // TO-DO
+                // TODO
                 sidePanel.innerHTML = '<b>game rules</b>: click on "X" and move the cursor to reveal hiddent messages that will lead you to the next game<br><br><b>references</b>: The Addams Family<br><br><b>music</b>: ???';
                 break;
             case 'labyrinth1': // 2d maze
-                // TO-DO
+                // TODO
                 sidePanel.innerHTML = '<b>game rules</b>: use the arrow keys to move through the maze, make sure to collect all items (white circles) before exiting<br><br><b>reference</b>: <i>Labyrinth</i> (1986)<br><br><b>music</b>: ???';
                 break
             case 'labyrinth2': // relativity stairs
-                // TO-DO
+                // TODO
                 break;
             default: // before the game starts
-                // TO-DO
+                // TODO
         }
 
         sidePanel.classList.remove('closing-side-panel');
@@ -132,9 +132,9 @@ async function hintBtnOnClick(event) {
         sidePanel.classList.add('closing-side-panel');
     } else {
         if (hints === 0) {
-            // TO-DO : propose a game to get hints
+            // TODO : propose a game to get hints
             sidePanel.innerHTML = 'you have no hints left :(<br>click here to win more hints!'
-            // TO-DO : click on panel (+ cursor pointer)
+            // TODO : click on panel (+ cursor pointer)
         } else {
             hintGiven = true;
             hintTooltip.textContent = 'hints left: ' + (hints - 1)
@@ -179,7 +179,7 @@ for (let i = 0; i < puzzlePieces.length; i++) {
 
 /* SOLVING PUZZLE */
 
-// TO-DO : only when starting puzzle !!!
+// TODO : only when starting puzzle !!!
 
 // reveal puzzle grid
 const puzzleGrid = document.querySelector('#puzzle-grid');
@@ -297,7 +297,7 @@ function stopMovingPiece(event) {
     }
 }
 function puzzleSolved() {
-    // TO-DO : finish entire game
+    // TODO : finish entire game
     console.log('Puzzle Solved!');
 
     for (const p of puzzlePiecesUse) p.remove();
@@ -323,7 +323,7 @@ const filmsIncl = [];
 let pickingFilms = false;
 
 window.addEventListener('message', async function(event) {
-    switch(event.data) { // TO-DO : organize all messages (game transitions and other)
+    switch(event.data) { // TODO : organize all messages (game transitions and other)
         case 'film-won':
             // continue to blackout !!! FOR NOW !!!
             currGame = 'blackout';
@@ -349,7 +349,7 @@ window.addEventListener('message', async function(event) {
             pickingFilms = !pickingFilms;
             break;
 
-        // TO-DO : the rest of cases
+        // TODO : the rest of cases
 
         default:
             if (pickingFilms) {filmsIncl.push(event.data);}
@@ -365,5 +365,5 @@ async function transition(nextGame) {
     await delay(750); // wait for transition to end
 }
 function updateProgress() {
-    // TO-DO
+    // TODO
 }

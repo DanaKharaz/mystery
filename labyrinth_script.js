@@ -3,7 +3,7 @@
 const canvas = document.querySelector('#labyrinth-canvas')
 const ctx = canvas.getContext('2d');
 
-// TO-DO : to start the game must press Tab, add a simple riddle for it - reason: makes keydown work in iframe
+// TODO : to start the game must press Tab, add a simple riddle for it - reason: makes keydown work in iframe
 
 /* ********************************************************************************************** */
 
@@ -293,5 +293,5 @@ async function moveCircle(event) {
 function mazeSolved() {
     if (items.length === 0) console.log('game won');
     else console.log('game lost');
-    // TO-DO : transtion to next part of the game
+    // TODO : transtion to next part of the game
 }
