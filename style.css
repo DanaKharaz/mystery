@@ -7,6 +7,28 @@ body {
 
 /* INDEX */
 
+/* INTRO SCREEN */
+#intro-screen {
+    color: white;
+    font-size: large;
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    justify-items: left;
+}
+.intro-txt-line {
+    width: fit-content;
+    /* blinking effect when typing */
+    border-right: 0.1em solid transparent;
+    animation: typewriter-blink 1s linear infinite;
+}
+@keyframes typewriter-blink {
+    0% {border-color: transparent;}
+    50% {border-color: white;}
+    100% {border-color: transparent;}
+}
+
 /* START SCREEN */
 /* button and moon animation */
 #start-screen-container {
@@ -15,6 +37,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
+    display: none; /* initially not shown */
 }
 #start-moons {
     aspect-ratio: 1 / 1;

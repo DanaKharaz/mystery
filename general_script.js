@@ -80,7 +80,7 @@ async function infoBtnOnClick(event) {
         sidePanel.classList.add('closing-side-panel');
     } else {
         // set correct text to panel
-        switch(currGame) { // TODO : arrange in proper order (for readability)
+        switch(currGame) { // TODO : arrange in proper order (for readability) // using innerHTML for a) appearane (italics, bold); b) data not editable by user
             case 'film':
                 // TODO
                 let references = '';
@@ -100,6 +100,9 @@ async function infoBtnOnClick(event) {
             case 'labyrinth2': // relativity stairs
                 // TODO
                 break;
+            case 'puzzle':
+                // TODO
+                sidePanel.innerHTML = '<b>game rules</b>: drag puzzle pieces from the toolbar into the white frame; click and drag to move the pieces within the frame, double click to rotate; when positioned correctly, pieces will lock in place<br><br><b>references</b>: ???<br><br><b>music</b>: <i>Wicked Game</i> by Chris Isaak';
             default: // before the game starts
                 // TODO
         }
@@ -144,7 +147,9 @@ async function hintBtnOnClick(event) {
                     break;
                 default: // for all game that don't have hints
                     sidePanel.innerHTML = 'this game is completely trick-free! so do not waste you hints :)';
-                    hintGiven = false; // no hint actially given here
+                    // no hint actially given here, so not decreasing hint number
+                    hintGiven = false;
+                    hintTooltip.textContent = 'hints left: ' + hints;
             }
         }
 
@@ -173,8 +178,7 @@ for (let i = 0; i < puzzlePieces.length; i++) {
     piecesRotation[k - 1] = r;
     puzzlePieces[i].style.transform = 'translateY(0.4em) rotate(' + (r*90) + 'deg)'; // translateY to not lose initial placement
 
-    // !!! TEST
-    puzzlePieces[i].classList.remove('puzzle-piece-hidden');
+    puzzlePieces[i].classList.remove('puzzle-piece-hidden'); // FIXME
 } console.log(piecesRotation);
 
 /* SOLVING PUZZLE */
@@ -311,10 +315,9 @@ function puzzleSolved() {
 /** MINIGAME INSIDE **/
 
 const minigame = document.querySelector('#minigame');
-let currGame = 'labyrinth1'; // !!! CHANGE !!!
-minigame.src = 'labyrinth.html'; // !!! CHANGE !!!
-// !!! TEST
-minigame.style.display = 'none';
+let currGame = 'puzzle'; // FIXME
+minigame.src = 'labyrinth.html'; // FIXME
+minigame.style.display = 'none'; // FIXME
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 
@@ -325,7 +328,7 @@ let pickingFilms = false;
 window.addEventListener('message', async function(event) {
     switch(event.data) { // TODO : organize all messages (game transitions and other)
         case 'film-won':
-            // continue to blackout !!! FOR NOW !!!
+            // FIXME - for now continue to blackout
             currGame = 'blackout';
         
             // hide info panel, in case it is open

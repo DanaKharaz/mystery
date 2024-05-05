@@ -73,7 +73,7 @@ async function revealOrHideFrame(event) {
 
     const chosenFrame = event.target;
     const index = filmFrames.indexOf(chosenFrame);
-    // !!! const key = frameKeys.indexOf(index) + 1;
+    // FIXME const key = frameKeys.indexOf(index) + 1;
 
     // action
     if (clickedFrames.includes(index)) { // this one is already clicked, so ignore
@@ -82,7 +82,7 @@ async function revealOrHideFrame(event) {
         root.style.setProperty('--currImg', 'url("film_res/' + imagesChosen[frameKeys[index]] + '.png")');
         chosenFrame.classList.add('reveal-frame');
         chosenFrame.classList.remove('hide-frame');
-        /* !!! chosenFrame.classList.add('reveal-frame' + key);
+        /* FIXME chosenFrame.classList.add('reveal-frame' + key);
         chosenFrame.classList.remove('hide-frame' + key); */
         clickedFrames.push(index);
     }
@@ -107,7 +107,7 @@ async function revealOrHideFrame(event) {
             guesses++;
         } else { // wrong guess
             isAnimating = true;
-            // !!! await delay(1000);
+            // FIXME await delay(1000);
             await delay(500);
             filmFrames[clickedFrames[0]].classList.remove('reveal-frame');
             root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")');
@@ -117,7 +117,7 @@ async function revealOrHideFrame(event) {
             root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[1]]] + '.png")');
             filmFrames[clickedFrames[1]].classList.add('hide-frame');
             await delay(375);
-            /* !!! const k0 = frameKeys.indexOf(clickedFrames[0]) + 1;
+            /* FIXME const k0 = frameKeys.indexOf(clickedFrames[0]) + 1;
             const k1 = frameKeys.indexOf(clickedFrames[1]) + 1;
             filmFrames[clickedFrames[0]].classList.remove('reveal-frame' + k0);
             filmFrames[clickedFrames[0]].classList.add('hide-frame' + k0);
@@ -192,7 +192,7 @@ async function nextBtnClick(event) {
         await delay(40);
         
         // notify parent
-        window.parent.postMessage('film-won', '*'); // https://javascriptbit.com/transfer-data-between-parent-window-and-iframe-postmessage-api/
+        window.parent.postMessage('film-won', '*');
     } else {
         await delay(40);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);

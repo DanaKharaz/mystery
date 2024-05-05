@@ -147,26 +147,6 @@ let isAnimating = false;
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 
 let dx, dy, arcX, arcY, finalArcX, finalArcY, clearX, clearY;
-/*function drawCircleAux() {
-    ctx.clearRect(clearX, clearY, x, y);
-
-    arcX += dx;
-    arcY += dy;
-    clearX += dx;
-    clearY += dy;
-
-    ctx.beginPath();
-    ctx.arc(arcX, arcY, radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.closePath();
-
-    if (!(dx > 0 && arcX <= finalArcX ||
-        dx < 0 && arcX >= finalArcX ||
-        dy > 0 && arcY <= finalArcY ||
-        dy < 0 && arcY >= finalArcY)) {
-            requestAnimationFrame(drawCircleAux);
-    }
-}*/
 async function drawCircle(dx, dy, entering = false, exiting = false) {
     isAnimating = true;
 
@@ -182,7 +162,6 @@ async function drawCircle(dx, dy, entering = false, exiting = false) {
     clearY = prevJ*y;
 
     // move circle until needed position is reached
-    //drawCircleAux();
     while (dx > 0 && arcX <= finalArcX ||
            dx < 0 && arcX >= finalArcX ||
            dy > 0 && arcY <= finalArcY ||
