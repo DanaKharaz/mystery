@@ -160,7 +160,6 @@ let completed = 0;
 const puzzlePieces = Array.from(document.querySelectorAll('.puzzle-piece'));
 const puzzlePiecesUse = Array.from(document.querySelectorAll('.puzzle-piece-use'));
 const usedPiecesIdx = [];
-//const piecesRotations = new Array(48);
 for (let i = 0; i < puzzlePieces.length; i++) {
     let k;
     do {
@@ -168,9 +167,6 @@ for (let i = 0; i < puzzlePieces.length; i++) {
     } while (usedPiecesIdx.includes(k - 1));
     usedPiecesIdx.push(k - 1);
     puzzlePieces[i].style.backgroundImage = 'url(puzzle_res/' + k + '.png)';
-    /*const r = Math.floor(Math.random()*4)*90;
-    piecesRotations[i] = r;
-    puzzlePieces[i].style.transform = 'translateY(0.4em) rotate(' + r + 'deg)'; // must repeat 'translate'*/
     // !!! TEST
     puzzlePieces[i].classList.remove('puzzle-piece-hidden');
 }
@@ -192,6 +188,7 @@ const centerY = (frac*(540 - 137.5)) + 'px';
 // drag pieces from toolbar to puzzle grid
 const playablePieces = []; // indexes of pieces dropped into grid
 let draggedPiece;
+let pieceZ = 1;
 for (let i = 0; i < 48; i++) {puzzlePieces[i].addEventListener('dragstart', startDraggingPiece);}
 function startDraggingPiece(event) {
     draggedPiece = event.target;
@@ -203,38 +200,19 @@ puzzleGrid.addEventListener('drop', (event) => {
 
     const idx = usedPiecesIdx[puzzlePieces.indexOf(draggedPiece)];
 
+    // reveal piece within grid
     const pieceUse = puzzlePiecesUse[idx];
     pieceUse.display = 'inherit';
+    pieceUse.style.zIndex = pieceZ;
+    pieceZ++;
     pieceUse.style.backgroundImage = 'url(puzzle_res/' + (idx + 1) + '.png)';
     pieceUse.style.height = h;
     pieceUse.style.left = centerX;
     pieceUse.style.top = centerY;
-    console.log(idx);
-    /*event.target.appendChild(draggedPiece);
-    draggedPiece.classList.remove('puzzle-piece');
-    draggedPiece.classList.add('puzzle-piece-use');
-    //draggedPiece.style.transform = 'rotate(' + piecesRotations[usedPiecesIdx[puzzlePieces.indexOf(draggedPiece)]] + 'deg)';
-    draggedPiece.style.height = h;
-    // place piece in the center of the grid
-    draggedPiece.style.left = centerX;
-    draggedPiece.style.top = centerY;
-    console.log(draggedPiece.style, centerX, centerY);*/
-
-    // not using drag event further to a) not have the 'drop' cursor; b) not have strange shadows due to rotation
-    //draggedPiece.setAttribute('draggable', false);
-    //draggedPiece.removeEventListener('dragstart', startDraggingPiece);
+    
     draggedPiece.remove();
 
     playablePieces.push(idx);
-
-    /*draggedPiece.addEventListener('dblclick', (event) => {
-        const index = usedPiecesIdx[puzzlePieces.indexOf(event.target)];
-        console.log(index, piecesRotations[index]);
-        const r = (piecesRotations[index] + 90) % 360;
-        piecesRotations[index] = r;
-        event.target.style.transform = 'rotate(' + r + 'deg)';
-        console.log(piecesRotations, event.target.style.transform);
-    });*/
 });
 
 // move pieces inside the puzzle grid
@@ -257,7 +235,6 @@ window.addEventListener('mousedown', startMovingPiece);
 window.addEventListener('mousemove', movePiece);
 window.addEventListener('mouseup', stopMovingPiece);
 function startMovingPiece(event) {
-    //idx = usedPiecesIdx[puzzlePieces.indexOf(event.target)];
     idx = puzzlePiecesUse.indexOf(event.target);
     if (idx != -1 && playablePieces.includes(idx) && !piecesPlaced.includes(idx)) {
         isMoving = true;
@@ -283,13 +260,10 @@ function stopMovingPiece(event) {
     if (isMoving) {
         console.log('check');
         // check if the piece is close enough to its true place and correctly rotated
-        //const idx = usedPiecesIdx[puzzlePieces.indexOf(event.target)];
         const currX = movingPiece.style.left.slice(0, movingPiece.style.left.length - 2);
         const currY = movingPiece.style.top.slice(0, movingPiece.style.top.length - 2);
         const trueX = ppuPlacements[idx][1]*frac;
         const trueY = ppuPlacements[idx][0]*frac;
-        //console.log(piecesRotations, idx, movingPiece.style.transform);
-        //if (piecesRotations[idx] == 0 && Math.sqrt((trueX - currX)**2 + (trueY - currY)**2) <= nearFactor) { // 'snap' the piece in place, can't be moved anymore
         if (Math.sqrt((trueX - currX)**2 + (trueY - currY)**2) <= nearFactor) { // 'snap' the piece in place, can't be moved anymore
             movingPiece.style.left = trueX + 'px';
             movingPiece.style.top = trueY + 'px';
