@@ -39,7 +39,7 @@ function pauseBtnOnClick(event) {
 }
 
 /* PAUSE SCREEN CANVAS */
-// TO-DO
+// TO-DO !!!
 
 /* SOUND */
 const soundBtn = document.querySelector('#sound-btn');
@@ -160,6 +160,7 @@ let completed = 0;
 const puzzlePieces = Array.from(document.querySelectorAll('.puzzle-piece'));
 const puzzlePiecesUse = Array.from(document.querySelectorAll('.puzzle-piece-use'));
 const usedPiecesIdx = [];
+const piecesRotation = new Array(48); // number of ccw 90deg rotations (0, 1, 2, 3)
 for (let i = 0; i < puzzlePieces.length; i++) {
     let k;
     do {
@@ -167,9 +168,14 @@ for (let i = 0; i < puzzlePieces.length; i++) {
     } while (usedPiecesIdx.includes(k - 1));
     usedPiecesIdx.push(k - 1);
     puzzlePieces[i].style.backgroundImage = 'url(puzzle_res/' + k + '.png)';
+
+    const r = Math.floor(Math.random()*4);
+    piecesRotation[k - 1] = r;
+    puzzlePieces[i].style.transform = 'translateY(0.4em) rotate(' + (r*90) + 'deg)'; // translateY to not lose initial placement
+
     // !!! TEST
     puzzlePieces[i].classList.remove('puzzle-piece-hidden');
-}
+} console.log(piecesRotation);
 
 /* SOLVING PUZZLE */
 
@@ -178,6 +184,8 @@ for (let i = 0; i < puzzlePieces.length; i++) {
 // reveal puzzle grid
 const puzzleGrid = document.querySelector('#puzzle-grid');
 puzzleGrid.style.display = 'initial';
+
+puzzleGrid.classList.add('puzzle-grid-start');
 
 // piece sizes depend on window height
 const frac = window.innerHeight*0.75/1080;
@@ -191,6 +199,10 @@ let draggedPiece;
 let pieceZ = 1;
 for (let i = 0; i < 48; i++) {puzzlePieces[i].addEventListener('dragstart', startDraggingPiece);}
 function startDraggingPiece(event) {
+    //remove transluscent image near cursor when dragging (rotation otherwise, showing correct piece orientation when dragging)
+    const img = new Image();
+    event.dataTransfer.setDragImage(img, 0, 0);
+
     draggedPiece = event.target;
     draggedPiece.style.cursor = 'draging';
 }
@@ -198,21 +210,31 @@ puzzleGrid.addEventListener('dragover', (event) => event.preventDefault(), false
 puzzleGrid.addEventListener('drop', (event) => {
     event.preventDefault();
 
-    const idx = usedPiecesIdx[puzzlePieces.indexOf(draggedPiece)];
+    const i = usedPiecesIdx[puzzlePieces.indexOf(draggedPiece)];
 
-    // reveal piece within grid
-    const pieceUse = puzzlePiecesUse[idx];
-    pieceUse.display = 'inherit';
-    pieceUse.style.zIndex = pieceZ;
-    pieceZ++;
-    pieceUse.style.backgroundImage = 'url(puzzle_res/' + (idx + 1) + '.png)';
-    pieceUse.style.height = h;
-    pieceUse.style.left = centerX;
-    pieceUse.style.top = centerY;
-    
-    draggedPiece.remove();
+    if (!playablePieces.includes(i)) { // prevent drop of already droppped pieces or already placed pieces (which cannot be moved anymore)
+        // reveal piece within grid
+        const pieceUse = puzzlePiecesUse[i];
+        pieceUse.display = 'inherit';
+        pieceUse.style.zIndex = pieceZ;
+        pieceZ++;
+        pieceUse.style.backgroundImage = 'url(puzzle_res/' + (i + 1) + '.png)';
+        pieceUse.style.height = h;
+        pieceUse.style.left = centerX;
+        pieceUse.style.top = centerY;
+        pieceUse.style.transform = 'rotate(' + (piecesRotation[i]*90) + 'deg)'; // keep rotation
 
-    playablePieces.push(idx);
+        // add 90deg ccw rotation of the piece on double click
+        pieceUse.addEventListener('dblclick', (event) => {
+            const r = (piecesRotation[i] + 1) % 4;
+            piecesRotation[i] = r;
+            pieceUse.style.transform = 'rotate(' + (r*90) + 'deg)';
+        })
+        
+        draggedPiece.remove();
+
+        playablePieces.push(i);
+    }
 });
 
 // move pieces inside the puzzle grid
@@ -226,7 +248,7 @@ const ppuPlacements = [[-48, -47], [-48, 131], [-44, 310], [-48, 490], [-44, 673
 const piecesPlaced = []; // indexes of already placed pieces
 let offX, offY; // differences between cursor and piece position
 let movingPiece; // element being moved
-let idx = -1; // index of the piece being moved in puzzlePieces
+let pieceUseIdx = -1; // index of the piece being moved in puzzlePieces
 let isMoving = false;
 const nearFactor = frac*20; // place correctly if moved close enough
 
@@ -235,8 +257,8 @@ window.addEventListener('mousedown', startMovingPiece);
 window.addEventListener('mousemove', movePiece);
 window.addEventListener('mouseup', stopMovingPiece);
 function startMovingPiece(event) {
-    idx = puzzlePiecesUse.indexOf(event.target);
-    if (idx != -1 && playablePieces.includes(idx) && !piecesPlaced.includes(idx)) {
+    pieceUseIdx = puzzlePiecesUse.indexOf(event.target);
+    if (pieceUseIdx != -1 && playablePieces.includes(pieceUseIdx) && !piecesPlaced.includes(pieceUseIdx)) {
         isMoving = true;
         
         event.target.style.cursor = 'grabbing';
@@ -258,17 +280,17 @@ function movePiece(event) {
 }
 function stopMovingPiece(event) {
     if (isMoving) {
-        console.log('check');
         // check if the piece is close enough to its true place and correctly rotated
         const currX = movingPiece.style.left.slice(0, movingPiece.style.left.length - 2);
         const currY = movingPiece.style.top.slice(0, movingPiece.style.top.length - 2);
-        const trueX = ppuPlacements[idx][1]*frac;
-        const trueY = ppuPlacements[idx][0]*frac;
-        if (Math.sqrt((trueX - currX)**2 + (trueY - currY)**2) <= nearFactor) { // 'snap' the piece in place, can't be moved anymore
+        const trueX = ppuPlacements[pieceUseIdx][1]*frac;
+        const trueY = ppuPlacements[pieceUseIdx][0]*frac;
+        if (piecesRotation[pieceUseIdx] == 0 && Math.sqrt((trueX - currX)**2 + (trueY - currY)**2) <= nearFactor) { // 'snap' the piece in place, can't be moved anymore
             movingPiece.style.left = trueX + 'px';
             movingPiece.style.top = trueY + 'px';
             movingPiece.style.cursor = 'auto';
-            piecesPlaced.push(idx);
+            piecesPlaced.push(pieceUseIdx);
+            movingPiece.style.zIndex = 0; // show below all active pieces
             if (piecesPlaced.length == 48) {puzzleSolved();}
         } else {movingPiece.style.cursor = 'grab';} // keep it moveable otherwise
         isMoving = false;
@@ -277,6 +299,11 @@ function stopMovingPiece(event) {
 function puzzleSolved() {
     // TO-DO : finish entire game
     console.log('Puzzle Solved!');
+
+    for (const p of puzzlePiecesUse) p.remove();
+
+    puzzleGrid.style.backgroundImage = 'url(puzzle_res/original.png)';
+    puzzleGrid.style.border = '2px solid white';
 }
 
 /* ********************************************************************************************** */

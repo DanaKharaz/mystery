@@ -328,7 +328,7 @@ hr {
 
 /* GRID */
 #puzzle-grid {
-    background-image: url(puzzle_res/image_grid.png);
+    /*background-image: url(puzzle_res/image_grid.png); /* TEST */
     background-repeat: no-repeat;
     background-size: contain;
     background-color: white;
@@ -339,6 +339,13 @@ hr {
     left: 50vw;
     transform: translate(-50%, -50%);
     display: none;
+}
+.puzzle-grid-start {animation: puzzle-start 5s ease-in-out forwards;}
+@keyframes puzzle-start {
+    0% {background-image: url(puzzle_res/original.png);opacity: 1;}
+    84% {background-image: url(puzzle_res/original.png);opacity: 0;}
+    85% {background-image: none;}
+    100% {opacity: 1;}
 }
 /* pieces initially in toolbar */
 .puzzle-piece {
