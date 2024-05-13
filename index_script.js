@@ -38,8 +38,8 @@ newLine(true);
 showIntroText();
 async function showIntroText() {
     while (charI < introText.length) {
-        //await delay(charPauses[charI]);
-        await delay(20); // FIXME test
+        await delay(charPauses[charI]);
+        //await delay(20); // FIXME test
         if (introText[charI] == '\n') { // line break within text
             newLine();
             lineI++;

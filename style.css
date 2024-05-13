@@ -20,12 +20,14 @@ body {
 .intro-txt-line {
     width: fit-content;
     /* blinking effect when typing */
-    border-right: 0.1em solid transparent;
+    border-right: 0.05em solid transparent;
     animation: typewriter-blink 1s linear infinite;
 }
 @keyframes typewriter-blink {
     0% {border-color: transparent;}
+    49% {border-color: transparent;}
     50% {border-color: white;}
+    99% {border-color: white;}
     100% {border-color: transparent;}
 }
 
@@ -139,6 +141,18 @@ hr {
     overflow-x: auto;
     scrollbar-width: thin;
 }
+/* puzzle pieces initially in toolbar */
+.puzzle-piece {
+    display: inline-block;
+    height: 2.48em; /* not as percentage to work around removal of overflow: overlay from Chrome - the elements would get smaller when scrollbar appears otherwise */
+    aspect-ratio: 1 / 1;
+    transform: translateY(0.4em);
+    margin: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.puzzle-piece:hover {cursor: grab;} /* to drag the pieces to the grid */
+.puzzle-piece-hidden {display: none;} /* initially all are hidden */
 /* open & close */
 #toolbar-btn {
     background-color: #3b3b3b;
@@ -255,6 +269,7 @@ hr {
     height: 80vh;
     padding-top: 15vh;
     margin-top: 3vh;
+    background-color: burlywood;
 }
 #pause-screen-hidden {display: none;} /* initially hidden */
 #pause-screen-shown {display: auto;}
@@ -283,7 +298,7 @@ hr {
 #tv-noise {
     height: 200%;
     aspect-ratio: 1337 / 1080;
-    background-image: url(spause_res/noise.svg);
+    background-image: url(pause_res/noise.svg);
     opacity: 0.7;
     position: absolute;
     top: -50%;
@@ -351,7 +366,6 @@ hr {
 
 /* GRID */
 #puzzle-grid {
-    /*background-image: url(puzzle_res/image_grid.png); /* TEST */
     background-repeat: no-repeat;
     background-size: contain;
     background-color: white;
@@ -370,18 +384,7 @@ hr {
     85% {background-image: none;}
     100% {opacity: 1;}
 }
-/* pieces initially in toolbar */
-.puzzle-piece {
-    display: inline-block;
-    height: 2.48em; /* not as percentage to work around removal of overflow: overlay from Chrome - the elements would get smaller when scrollbar appears otherwise */
-    aspect-ratio: 1 / 1;
-    transform: translateY(0.4em);
-    margin: 0;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-.puzzle-piece:hover {cursor: grab;} /* to drag the pieces to the grid
-.puzzle-piece-hidden {display: none;} /* initially all are hidden */
+/* puzzle pieces in use */
 .puzzle-piece-use {
     aspect-ratio: 1 / 1;
     background-size: contain;
@@ -721,4 +724,14 @@ hr {
     top: 50vh;
     left: 50vw;
     transform: translate(-50%, -50%);
+}
+
+/* ****************************************************** */
+
+/* BAT */
+#bat-canvas { /* width and height will be set in script for better image quality and scaling */
+    background-color: black;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
