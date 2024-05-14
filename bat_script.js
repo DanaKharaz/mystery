@@ -6,7 +6,7 @@ window.addEventListener('message', function(event) {
     switch(event.data) {
         case 'pause-clicked':
             isPaused = !isPaused;
-            if (!isPaused && gameStarted) moveBackground(); // restart animation
+            if (!isPaused && gamePlaying) gamePlaying = false; // space key will restart animation
     }
 });
 
@@ -32,11 +32,18 @@ const minDistY = cloudH / 3;
 const batW = window.innerHeight / 7;
 const batH = batW / 300 * 231;
 const batX = window.innerWidth / 3; // not in the middle to allow some time at the start of the game
-let currY = window.innerHeight / 2 - batH;
+let currY = (window.innerHeight - batH) / 2;
 let currBat = 1; // not 0 to start animation right away
-const bats = [3000, 2700, 2400, 2100, 1800, 1500, 1200, 900, 600, 300, 0];
 let goingUp = false;
 let batDispl = 0;
+
+// 'gravity' effect for bat's movement
+const accel = 0.2; // acceleration down (px per frame^2)
+let y0 = (window.innerHeight - batH) / 2; // starting position (px), resets whenever starting to go upward
+let v0 = 0; // initial velocity (px per frame)
+const upFrames = 60; // how long upward movement lasts
+let velUp = (batH - 0.5 * accel * upFrames**2) / upFrames; // initial velocity when going upward (px per frame)
+let time = 0; // time passed since start of movement (frames), resets whenever starting to go upward
 
 // move gravestones and clouds across the screen
 const nMidsMax = Math.floor((window.innerHeight - 2 * (h + hT)) / h) - 4; // non-inclusive
@@ -57,12 +64,19 @@ imgTops.onload = imgOnLoad;
 const imgClouds = new Image();
 imgClouds.src = 'bat_res/clouds.png';
 imgClouds.onload = imgOnLoad;
-const imgBats = new Image();
+/*const imgBats = new Image();
 imgBats.src = 'bat_res/bat.png';
-imgBats.onload = imgOnLoad;
+imgBats.onload = imgOnLoad;*/
+const imgBats = [];
+for (let i = 0; i < 11; i++) {
+    const img = new Image();
+    img.src = 'bat_res/bat' + i + '.png';
+    img.onload = imgOnLoad;
+    imgBats.push(img);
+}
 function imgOnLoad() {
     loaded++;
-    if (loaded === 5) { // all images are loaded
+    if (loaded === 15) { // all images are loaded
         // create initial clouds
         let cloudX = 20; // start slightly away from the edge
         let prevY = Math.floor(Math.random() * window.innerHeight) - cloudH / 2;
@@ -135,7 +149,8 @@ function imgOnLoad() {
         }
 
         // draw initial bat
-        ctx.drawImage(imgBats, bats[0], 0, 300, 231, batX, currY, batW, batH);
+        //ctx.drawImage(imgBats, bats[0], 0, 300, 231, batX, currY, batW, batH);
+        ctx.drawImage(imgBats[0], batX, currY, batW, batH);
     }
 }
 
@@ -143,7 +158,7 @@ function imgOnLoad() {
 let frameState = 0; // 0,2,4 - clouds move; 0,3 - change bat sprite; 0,1,2,3,4,5 - graves move
 const step = 2;
 function moveBackground() {
-    if (isPaused) return; // no animation
+    if (isPaused || !gamePlaying) return; // no animation
 
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -231,32 +246,44 @@ function moveBackground() {
     if (graves[0]['x'] < -w) graves.shift(); // remove the grave that has exited the screen
 
     // BAT
-    ctx.drawImage(imgBats, bats[currBat], 0, 300, 231, batX, currY, batW, batH);
+
+    // draw bat
+    ctx.drawImage(imgBats[currBat], batX, currY, batW, batH);
     const prevY = currY;
-    if (goingUp) {
-        if (batDispl >= batH) {
-            batDispl = 0;
-            goingUp = false;
-        } else {
-            currY -= step;
-            batDispl += step;
-        }
-    } else currY += 2 * step;
-    if (frameState % 3 === 0) currBat = (currBat + 1) % 11;
+    if (goingUp) { // 'shoot' up
+        y0 = currY;
+        v0 = velUp;
+        time = 0;
+        goingUp = false;
+    }
+    currY = y0 + v0 * time + 0.5 * accel * time**2; // calculate needed position
+    if (frameState % 3 === 0) currBat = (currBat + 1) % 11; // change sprite
+    time++;
+
+    // check for collision or fall
+    if (currY > window.innerHeight + 3 * batH) {
+        gamePlaying = false;
+        gameOver();
+    }
 
     // PROGRESS ANIMATION
     frameState = (frameState + 1) % 6;
     window.requestAnimationFrame(moveBackground);
 }
 
-let gameStarted = false;
+let gamePlaying = false;
 
 document.addEventListener('keydown', function(event) {
     if (event.code === 'Space') {
-        if (!gameStarted && loaded === 5) {
-            gameStarted = true;
+        if (gamePlaying) goingUp = true;
+
+        if (!gamePlaying && loaded === 15) {
+            gamePlaying = true;
             moveBackground();
         }
-        if (gameStarted) goingUp = true;
     }
 });
+
+function gameOver() {
+    console.log('game over');
+}
