@@ -10,6 +10,26 @@ window.addEventListener('message', function(event) {
     }
 });
 
+const timer = document.querySelector('#bat-timer');
+let timeOut = false;
+const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
+async function timeGame() { // count down
+    for (let i = 89; i >= 0; i--) {
+        await delay(1000);
+        let m;
+        if (i >= 60) m = '01';
+        else m = '00';
+        const s = i % 60;
+        if (s < 10) timer.textContent = m + ':0' + s;
+        else timer.textContent = m + ':' + s;
+
+        if (!gamePlaying) return;
+    }
+    timeOut = true;
+    gamePlaying = false;
+    gameOver();
+}
+
 const canvas = document.querySelector('#bat-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -18,7 +38,7 @@ ctx.canvas.height = window.innerHeight;
 
 // grave dimensions
 const w = window.innerHeight / 5;
-const scale = w / 370;
+let scale = w / 370;
 const hT = scale * 230; // top part height
 const h = scale * 70; // base and middle part height
 const offM = scale * 3; // middle part offset
@@ -31,7 +51,8 @@ const minDistY = cloudH / 3;
 // bat dimensions
 const batW = window.innerHeight / 7;
 const batH = batW / 300 * 231;
-const batX = window.innerWidth / 3; // not in the middle to allow some time at the start of the game
+//const batX = window.innerWidth / 3; // not in the middle to allow some time at the start of the game
+const batX = w * 2; // FIXME
 let currY = (window.innerHeight - batH) / 2;
 let currBat = 1; // not 0 to start animation right away
 let goingUp = false;
@@ -45,9 +66,40 @@ const upFrames = 60; // how long upward movement lasts
 let velUp = (batH - 0.5 * accel * upFrames**2) / upFrames; // initial velocity when going upward (px per frame)
 let time = 0; // time passed since start of movement (frames), resets whenever starting to go upward
 
+/* collision masks : - arrays of poit coordinates, if a line of bat mask intersects a line of grave mask, then a collision happened
+                     - arrays of slopes of the lines connecting neighbouring points */
+// the masks are not exactly on the edge of the images to give the player a bit of leeway, not counting microscopic collisions
+/* graves : - first 3 for collision with left side of base where x added to img's x (same for each part) and y constant (right side not needed, it is impossible to collide with)
+            - other 8 for top part where x added to img's x (same for each part) and y added to top img's y (4 for left - entry; 4 for right -exit)
+            -3rd and 4th for long left side (right side not needed, it is impossible to collide with) */
+const colGravesUp = [[15 * scale, 15 * scale], [16 * scale, 55 * scale], [44 * scale, 55 * scale],
+                     [45 * scale, 145 * scale], [61 * scale, 178 * scale], [89 * scale, 202 * scale], [125 * scale, 215 * scale],
+                     [245 * scale, 215 * scale], [281 * scale, 202 * scale], [309 * scale, 178 * scale], [325 * scale, 145 * scale]];
+// in colGravesUp adding more to y in top part as the img points down (its lower part is the edge of collision)
+const colGravesDown = [[15 * scale, window.innerHeight - 15 * scale], [16 * scale, window.innerHeight - 55 * scale], [44 * scale, window.innerHeight - 55 * scale],
+                       [45 * scale, 85 * scale], [61 * scale, 52 * scale], [89 * scale, 28 * scale], [125 * scale, 15 * scale],
+                       [245 * scale, 15 * scale], [281 * scale, 28 * scale], [309 * scale, 52 * scale], [325 * scale, 85 * scale]];
+// in colGravesDown adding less to y in top part as the img points up (its upper part is the edge of collision)
+/* bats : - different for each sprite, some vertical lines connecting neighbouring points pass left of the img
+            (e.g. leftmost point of wing connecting directly with tip of tail)
+            as there is no backward movement
+          - both x and y added to img's x and y */
+scale = batW / 1800;
+const colBats = [[[474 * scale, 942 * scale], [589 * scale, 928 * scale], [607 * scale, 495 * scale], [686 * scale, 237 * scale], [813 * scale, 158 * scale], [1064 * scale, 229 * scale], [1173 * scale, 476 * scale], [1193 * scale, 847 * scale], [1410 * scale, 948 * scale], [1478 * scale, 1078 * scale], [1312 * scale, 1083 * scale], [1155 * scale, 1156 * scale], [939 * scale, 1170 * scale], [736 * scale, 997 * scale]],
+                 [[486 * scale, 947 * scale], [600 * scale, 900 * scale], [634 * scale, 379 * scale], [655 * scale, 308 * scale], [814 * scale, 258 * scale], [987 * scale, 373 * scale], [1080 * scale, 589 * scale], [1135 * scale, 829 * scale], [1337 * scale, 843 * scale], [1473 * scale, 893 * scale], [1450 * scale, 957 * scale], [1166 * scale, 1146 * scale], [1043 * scale, 1185 * scale], [910 * scale, 1133 * scale], [671 * scale, 955 * scale], [491 * scale, 1002 * scale]],
+                 [],
+                 [],
+                 [],
+                 [],
+                 [],
+                 [],
+                 [],
+                 [],
+                 []]; // FIXME
+
 // move gravestones and clouds across the screen
 const nMidsMax = Math.floor((window.innerHeight - 2 * (h + hT)) / h) - 4; // non-inclusive
-const graves = []; // list of {x, upT, [upMids], downT, [downMids]}
+const graves = []; // list of {x, upT, [upMids], upTopY, downT, downTopY, [downMids]}
 const clouds = []; // list of {x, y, sx} where sx is to decide which cloud is used
 
 // prepare all images
@@ -64,9 +116,6 @@ imgTops.onload = imgOnLoad;
 const imgClouds = new Image();
 imgClouds.src = 'bat_res/clouds.png';
 imgClouds.onload = imgOnLoad;
-/*const imgBats = new Image();
-imgBats.src = 'bat_res/bat.png';
-imgBats.onload = imgOnLoad;*/
 const imgBats = [];
 for (let i = 0; i < 11; i++) {
     const img = new Image();
@@ -120,6 +169,8 @@ function imgOnLoad() {
                 }
             }
 
+            const upTopY = h + nUpMids * (h - offM);
+
             const downT = 720 + (Math.floor(Math.random() * 13) % 3) * 240 + 5;
 
             const nDownMids = 13 - nUpMids;
@@ -135,21 +186,22 @@ function imgOnLoad() {
                 }
             }
 
-            graves.push({'x':x - 1, 'upT':upT, 'upMids':upMids, 'downT':downT, 'downMids':downMids}); // 'x-1' because the initial position is drawn now and animated later
+            const downTopY = window.innerHeight - h - hT - nDownMids * (h - offM);
+
+            graves.push({'x':x - 1, 'upT':upT, 'upMids':upMids, 'upTopY':upTopY, 'downT':downT, 'downMids':downMids, 'downTopY':downTopY}); // 'x-1' because the initial position is drawn now and animated later
 
             // inital position
             // up
             ctx.drawImage(imgBases, 0, 0, 370, 70, x, 0, w, h);
             for (let k = 0; k < nUpMids; k++) ctx.drawImage(imgMids, 0, upMids[k], 370, 82, x, (k + 1) * h - k * offM, w, h);
-            ctx.drawImage(imgTops, 0, upT, 370, 235, x, h + nUpMids * (h - offM), w, hT);
+            ctx.drawImage(imgTops, 0, upT, 370, 235, x, upTopY, w, hT);
             // down
             ctx.drawImage(imgBases, 0, 70, 370, 70, x, window.innerHeight - h, w, h);
             for (let k = 0; k < nDownMids; k++) ctx.drawImage(imgMids, 0, downMids[k], 370, 82, x, window.innerHeight - h - (k + 1)*h + k*offM, w, h);
-            ctx.drawImage(imgTops, 0, downT, 370, 235, x, window.innerHeight - h - hT - nDownMids * (h - offM), w, hT);
+            ctx.drawImage(imgTops, 0, downT, 370, 235, x, downTopY, w, hT);
         }
 
         // draw initial bat
-        //ctx.drawImage(imgBats, bats[0], 0, 300, 231, batX, currY, batW, batH);
         ctx.drawImage(imgBats[0], batX, currY, batW, batH);
     }
 }
@@ -185,6 +237,7 @@ function moveBackground() {
 
     // GRAVES
 
+    let currGrave;
     for (let i = 0; i < graves.length; i++) { // move graves  
         // UP
         // base
@@ -192,7 +245,7 @@ function moveBackground() {
         // middles
         for (let k = 0; k < graves[i]['upMids'].length; k++) ctx.drawImage(imgMids, 0, graves[i]['upMids'][k], 370, 82, graves[i]['x'], (k + 1) * h - k * offM, w, h);
         // top
-        ctx.drawImage(imgTops, 0, graves[i]['upT'], 370, 235, graves[i]['x'], h + graves[i]['upMids'].length * (h - offM), w, hT);
+        ctx.drawImage(imgTops, 0, graves[i]['upT'], 370, 235, graves[i]['x'], graves[i]['upTopY'], w, hT);
 
         // DOWN
         // base
@@ -200,10 +253,13 @@ function moveBackground() {
         // middles
         for (let k = 0; k < graves[i]['downMids'].length; k++) ctx.drawImage(imgMids, 0, graves[i]['downMids'][k], 370, 82, graves[i]['x'], window.innerHeight - h - (k + 1)*h + k*offM, w, h);
         // top
-        ctx.drawImage(imgTops, 0, graves[i]['downT'], 370, 235, graves[i]['x'], window.innerHeight - h - hT - graves[i]['downMids'].length * (h - offM), w, hT);
+        ctx.drawImage(imgTops, 0, graves[i]['downT'], 370, 235, graves[i]['x'], graves[i]['downTopY'], w, hT);
 
         // move grave left
         graves[i]['x'] -= step;
+
+        // see if this grave is passed by the bat
+        if (graves[i]['x'] <= batX + batW && graves[i]['x'] + w >= batX) currGrave = i;
     }
     
     if (graves[graves.length - 1]['x'] < window.innerWidth - 2 * w) { // generate new grave (coming from the right side of the screen)
@@ -225,6 +281,8 @@ function moveBackground() {
             }
         }
 
+        const upTopY = h + nUpMids * (h - offM);
+
         const downT = 720 + (Math.floor(Math.random() * 13) % 3) * 240 + 5;
 
         const nDownMids = 13 - nUpMids;
@@ -240,7 +298,9 @@ function moveBackground() {
             }
         }
 
-        graves.push({'x':x, 'upT':upT, 'upMids':upMids, 'downT':downT, 'downMids':downMids});
+        const downTopY = window.innerHeight - h - hT - nDownMids * (h - offM);
+
+        graves.push({'x':x, 'upT':upT, 'upMids':upMids, 'upTopY':upTopY, 'downT':downT, 'downMids':downMids, 'downTopY':downTopY});
     }
 
     if (graves[0]['x'] < -w) graves.shift(); // remove the grave that has exited the screen
@@ -260,10 +320,84 @@ function moveBackground() {
     if (frameState % 3 === 0) currBat = (currBat + 1) % 11; // change sprite
     time++;
 
-    // check for collision or fall
-    if (currY > window.innerHeight + 3 * batH) {
+    // CHECK FOR FALL AND COLLISION
+    if (currY > window.innerHeight + 3 * batH) { // fall below screen
         gamePlaying = false;
         gameOver();
+    }
+    // TODO : optimize calculations (?)
+    if (currGrave) { // bat is passing one of the graves
+        let collided = false;
+        for (let b = 0; b < colBats[currBat].length - 1; b++) {
+            // coordinates
+            const bx1 = colBats[currBat][b][0] + batX;
+            const by1 = colBats[currBat][b][1] + currY;
+            const bx2 = colBats[currBat][b + 1][0] + batX;
+            const by2 = colBats[currBat][b + 1][1] + currY;
+            // line equation
+            const bm = (by2 - by1) / (bx2 - bx1);
+            const bc = by1 - bm * bx1;
+
+            for (let g = 0; g < colGravesUp.length - 1; g++) { // upper graves
+                // coordinates
+                const gx1 = graves[currGrave]['x'] + colGravesUp[g][0];
+                const gx2 = graves[currGrave]['x'] + colGravesUp[g + 1][0];
+                let gy1, gy2;
+                if (g < 3) gy1 = colGravesUp[g][1]; // base point
+                else gy1 = graves[currGrave]['upTopY'] + colGravesUp[g][1]; // top point
+                if (g < 2) gy2 = colGravesUp[g + 1][1]; // base point
+                else gy2 = graves[currGrave]['upTopY'] + colGravesUp[g + 1][1] // top point
+                // line equation
+                const gm = (gy2 - gy1) / (gx2 - gx1);
+                const gc = gy1 - gm * gx1;
+
+                // intersection point
+                const ix = (gc - bc) / (bm - gm);
+                const iy = gm * ix + gc;
+                    
+                // if intersection on the segments, then collision happened
+                if (ix <= Math.max(bx1, bx2) && ix >= Math.min(bx1, bx2) &&
+                    iy <= Math.max(by1, by2) && iy >= Math.min(by1, by2) &&
+                    ix <= Math.max(gx1, gx2) && ix >= Math.min(gx1, gx2) &&
+                    iy <= Math.max(gy1, gy2) && iy >= Math.min(gy1, gy2)) {
+                    collided = true;
+                    break;
+                }
+            }
+
+            for (let g = 0; g < colGravesDown.length - 1; g++) { // lower graves
+                // coordinates
+                const gx1 = graves[currGrave]['x'] + colGravesDown[g][0];
+                const gx2 = graves[currGrave]['x'] + colGravesDown[g + 1][0];
+                let gy1, gy2;
+                if (g < 3) gy1 = colGravesDown[g][1]; // base point
+                else gy1 = graves[currGrave]['upDownY'] + colGravesDown[g][1]; // top point
+                if (g < 2) gy2 = colGravesDown[g + 1][1]; // base point
+                else gy2 = graves[currGrave]['upDownY'] + colGravesDown[g + 1][1]; // top point
+                // line equation
+                const gm = (gy2 - gy1) / (gx2 - gx1);
+                const gc = gy1 - gm * gx1;
+
+                // intersection point
+                const ix = (gc - bc) / (bm - gm);
+                const iy = gm * ix + gc;
+
+                // if intersection on the segments, then collision happened
+                if (ix <= Math.max(bx1, bx2) && ix >= Math.min(bx1, bx2) &&
+                    iy <= Math.max(by1, by2) && iy >= Math.min(by1, by2) &&
+                    ix <= Math.max(gx1, gx2) && ix >= Math.min(gx1, gx2) &&
+                    iy <= Math.max(gy1, gy2) && iy >= Math.min(gy1, gy2)) {
+                    collided = true;
+                    break;
+                }
+            }
+
+            if (collided) { // game lost
+                gamePlaying = false;
+                gameOver();
+                break;
+            }
+        }
     }
 
     // PROGRESS ANIMATION
@@ -272,14 +406,20 @@ function moveBackground() {
 }
 
 let gamePlaying = false;
+let started = false;
 
 document.addEventListener('keydown', function(event) {
     if (event.code === 'Space') {
         if (gamePlaying) goingUp = true;
 
-        if (!gamePlaying && loaded === 15) {
+        if (!gamePlaying && loaded === 15 && !timeOut) {
             gamePlaying = true;
             moveBackground();
+        }
+
+        if (!started && loaded === 15) {
+            started = true;
+            timeGame();
         }
     }
 });

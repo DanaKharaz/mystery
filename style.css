@@ -715,6 +715,26 @@ hr {
 
 /* ****************************************************** */
 
+/* BAT */
+#bat-canvas { /* width and height will be set in script for better image quality and scaling */
+    background-color: black;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+#bat-timer {
+    position: fixed;
+    bottom: 0.4em;
+    right: 0.4em;
+    border: white solid 0.1em;
+    background-color: black;
+    color: white;
+    font-size: xx-large;
+    padding: 0.3em;
+}
+
+/* ****************************************************** */
+
 /* LABYRINTH */
 
 /* 2D MAZE */
@@ -724,14 +744,4 @@ hr {
     top: 50vh;
     left: 50vw;
     transform: translate(-50%, -50%);
-}
-
-/* ****************************************************** */
-
-/* BAT */
-#bat-canvas { /* width and height will be set in script for better image quality and scaling */
-    background-color: black;
-    position: fixed;
-    top: 0;
-    left: 0;
 }
