@@ -2,7 +2,47 @@
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 
-//const introScreen = Array.from(document.querySelectorAll('.intro-txt-line'));
+/** TITLE **/
+const title = document.querySelector('#index-title');
+async function titleBlink() {
+    const skip = 100;
+    for (let i = 0; i < 4; i++) {
+        await delay(skip);
+        title.textContent = 'M\u00A0STERY';
+        await delay(skip);
+        title.textContent = 'MYSTERY';
+        await delay(skip);
+        title.textContent = 'M\u00A0STERY';
+        await delay(skip);
+        title.textContent = 'MISTERY';
+        await delay(skip);
+        title.textContent = 'M\u00A0STERY';
+        await delay(skip);
+        title.textContent = 'MYS\u00A0ERY';
+        await delay(skip);
+        title.textContent = 'M\u00A0STERY';
+        await delay(skip);
+        title.textContent = 'MIS\u00A0ERY';
+    }
+
+    await delay(500);
+    for (let i = 0; i < 5; i++) {
+        await delay(80);
+        title.textContent = '';
+        await delay(80);
+        title.textContent = 'MIS\u00A0ERY';
+    }
+
+    await delay(500);
+    title.style.display = 'none';
+    await delay(500);
+
+    newLine(true);
+    showIntroText();
+}
+titleBlink();
+
+/** INTRO SCREEN **/
 const introScreen = document.querySelector('#intro-screen');
 
 const introLines = [];
@@ -26,6 +66,7 @@ charPauses[36] = 1000;
 charPauses[43] = 1000;
 charPauses[67] = 1000;
 
+//FIXMEnewLine(true);
 function newLine(starting = false) {
     if (!starting) introLines[lineI].style.animation = 'none'; // remove blinking bar from previous line
     const l = document.createElement('div');
@@ -33,13 +74,12 @@ function newLine(starting = false) {
     introScreen.appendChild(l);
     introLines.push(l);
 }
-newLine(true);
 
-showIntroText();
+//FIXMEshowIntroText();
 async function showIntroText() {
     while (charI < introText.length) {
-        await delay(charPauses[charI]);
-        //await delay(20); // FIXME test
+        //await delay(charPauses[charI]);
+        await delay(20); // FIXME test
         if (introText[charI] == '\n') { // line break within text
             newLine();
             lineI++;
@@ -70,8 +110,17 @@ async function showIntroText() {
         charI++;
         charInLines++;
     }
-    console.log(wordI);
+    await delay(1000);
+
+    // show background and start button
+    introScreen.style.display = 'none';
+    // TODO background
+    document.querySelector('#start-screen-container').classList.remove('start-screen-hidden');
 }
+
+/** BACKGROUND **/ //TODO
+
+/** START BUTTON **/
 
 const startBtn = document.querySelector('#start-btn');
 const startBtnContainer = document.querySelector('#start-btn-container');
@@ -87,3 +136,18 @@ async function transitionFirstGame(event) {
 
     // TODO : transition to the first game OR intro screen
 }
+
+/** CONNECT DOTS **/ //TODO
+
+// array of dots (stars) that can be connected with parallel array with number of connections for each (both will be filled from connections)
+const dots = [];
+const nConnected = []; // after each connection, the number will decrease - game done when all are 0
+// array of connections [[A,B]..]
+const connections = []; // TODO
+
+// TODO : add dots (stars) to positionns above and listen for mouseclicks near them
+// playable are buttons (pointer on hover) OR on mousemove, change pointer if near playable dot (easier to load?)
+// on click, the dot(s) current one connects to 'flash'
+// when 2 connecting clicked consecutively, a line between is drawn
+
+/** DOLL ANIMATION **/ //TODO

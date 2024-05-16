@@ -81,7 +81,7 @@ async function infoBtnOnClick(event) {
         sidePanel.classList.add('closing-side-panel');
     } else {
         // set correct text to panel
-        switch(currGame) { // TODO : arrange in proper order (for readability) // using innerHTML for a) appearane (italics, bold); b) data not editable by user
+        switch(currGame) { // TODO : arrange in proper order (for readability) // using innerHTML : a) for appearane (italics, bold); b) data not editable by user
             case 'film':
                 // TODO
                 let references = '';
@@ -92,7 +92,7 @@ async function infoBtnOnClick(event) {
                 break;
             case 'blackout':
                 // TODO
-                sidePanel.innerHTML = '<b>game rules</b>: click on "X" and move the cursor to reveal hiddent messages that will lead you to the next game<br><br><b>references</b>: The Addams Family<br><br><b>music</b>: ???';
+                sidePanel.innerHTML = '<b>game rules</b>: click on "X" and move the cursor to reveal hidden messages, they will lead you to the next game<br><br><b>references</b>: The Addams Family<br><br><b>music</b>: ???';
                 break;
             case 'labyrinth1': // 2d maze
                 // TODO
@@ -103,7 +103,7 @@ async function infoBtnOnClick(event) {
                 break;
             case 'puzzle':
                 // TODO
-                sidePanel.innerHTML = '<b>game rules</b>: drag puzzle pieces from the toolbar into the white frame; click and drag to move the pieces within the frame, double click to rotate; when positioned correctly, a piece will lock in place<br><br><b>references</b>: ???<br><br><b>music</b>: <i>Wicked Game</i> by Chris Isaak';
+                sidePanel.innerHTML = '<b>game rules</b>: drag puzzle pieces from the toolbar into the white frame; click and drag to move the pieces within the frame, double click to rotate; when positioned correctly, a piece will lock in place<br><br><b>music</b>: <i>Wicked Game</i> by Chris Isaak';
             default: // before the game starts
                 // TODO
         }
@@ -136,18 +136,19 @@ async function hintBtnOnClick(event) {
         sidePanel.classList.add('closing-side-panel');
     } else {
         if (hints === 0) {
-            // TODO : propose a game to get hints
-            sidePanel.innerHTML = 'you have no hints left :(<br>click here to win more hints!'
-            // TODO : click on panel (+ cursor pointer)
+            sidePanel.textContent = 'you have no hints left :(';
         } else {
             hintGiven = true;
             hintTooltip.textContent = 'hints left: ' + (hints - 1)
             switch(currGame) {
                 case 'labyrinth1':
-                    sidePanel.innerHTML = 'to start the game click the "Tab" key, afterwards simply move through the maze'
+                    sidePanel.textContent = 'to start the game click the "Tab" key, afterwards simply move through the maze';
+                    break;
+                case 'blackout':
+                    sidePanel.textContent = 'they are always listening...';
                     break;
                 default: // for all game that don't have hints
-                    sidePanel.innerHTML = 'this game is completely trick-free! so do not waste you hints :)';
+                    sidePanel.textContent = 'this game is completely trick-free! so do not waste you hints :)';
                     // no hint actially given here, so not decreasing hint number
                     hintGiven = false;
                     hintTooltip.textContent = 'hints left: ' + hints;
@@ -178,8 +179,6 @@ for (let i = 0; i < puzzlePieces.length; i++) {
     const r = Math.floor(Math.random()*4);
     piecesRotation[k - 1] = r;
     puzzlePieces[i].style.transform = 'translateY(0.4em) rotate(' + (r*90) + 'deg)'; // translateY to not lose initial placement
-
-    puzzlePieces[i].classList.remove('puzzle-piece-hidden'); // FIXME
 }
 
 /* SOLVING PUZZLE */
@@ -242,11 +241,11 @@ function puzzleGame() {
 
     // move pieces inside the puzzle grid
     const ppuPlacements = [[-48, -47], [-48, 131], [-44, 310], [-48, 490], [-44, 673], [-48, 853], [-44, 1031], [-48, 1208],
-                        [134, -43], [131, 135], [127, 306], [140, 486], [127, 672], [134, 860], [134, 1032], [140, 1201],
-                        [314, -44], [314, 135], [306, 322], [312, 500], [306, 681], [306, 852], [320, 1023], [314, 1201],
-                        [494, -44], [493, 135], [493, 307], [484, 493], [484, 673], [492, 844], [492, 1023], [484, 1200],
-                        [672, -44], [680, 135], [669, 312], [672, 491], [672, 670], [671, 849], [672, 1028], [672, 1208],
-                        [848, -46], [849, 131], [849, 315], [852, 495], [852, 671], [852, 851], [852, 1032], [849, 1210]]; // proper placements for each piece (will be adjusted to window height)
+                           [134, -43], [131, 135], [127, 306], [140, 486], [127, 672], [134, 860], [134, 1032], [140, 1201],
+                           [314, -44], [314, 135], [306, 322], [312, 500], [306, 681], [306, 852], [320, 1023], [314, 1201],
+                           [494, -44], [493, 135], [493, 307], [484, 493], [484, 673], [492, 844], [492, 1023], [484, 1200],
+                           [672, -44], [680, 135], [669, 312], [672, 491], [672, 670], [671, 849], [672, 1028], [672, 1208],
+                           [848, -46], [849, 131], [849, 315], [852, 495], [852, 671], [852, 851], [852, 1032], [849, 1210]]; // proper placements for each piece (will be adjusted to window height)
 
     const piecesPlaced = []; // indexes of already placed pieces
     let offX, offY; // differences between cursor and piece position
@@ -315,8 +314,8 @@ function puzzleGame() {
 /** MINIGAME INSIDE **/
 
 const minigame = document.querySelector('#minigame');
-let currGame = 'bat'; // FIXME
-minigame.src = 'bat.html'; // FIXME
+let currGame = 'blackout'; // FIXME
+minigame.src = 'blackout.html'; // FIXME
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 

@@ -9,11 +9,9 @@ window.addEventListener('message', function(event) {
 
 const root = document.querySelector(':root');
 const filmFrames = Array.from(document.querySelectorAll('.film-frame'));
-const clickedFrames = [];
-const frameKeys = []; // index of frame in filmFrames : index of image in imagesChosen
-const countTaken = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-let guesses = 0;
-let moves = 20;
+
+let clickedFrames, countTaken, guesses, moves;
+let frameKeys; // index of frame in filmFrames : index of image in imagesChosen
 const imagesAll = ['A Nightmare on Elm Street (1984)',
                 'A Quite Place (2018)',
                 'Alien (1979)',
@@ -38,31 +36,47 @@ const imagesAll = ['A Nightmare on Elm Street (1984)',
                 'The VVitch (2015)',
                 'Us (2019)',
                 'X (2022)'];
-imagesAll.sort(() => 0.5 - Math.random()); // randomly sort the array
 
-// send chosen movies to parent (for info panel)
-window.parent.postMessage('picking-films', '*');
-for (let i = 0; i < 12; i++) window.parent.postMessage(imagesAll[i], "*");
-window.parent.postMessage('picking-films', '*');
-
-const imagesChosen = imagesAll.slice(0, 12);
-for (let i = 1; i <= 12; i++) root.style.setProperty('--img' + i, 'url("film_res/' + imagesChosen[i] + '.png")');
-let isAnimating = false;
-const guessedFrames = [false, false, false, false, false, false, false, false, false, false, false, false];
 const movesTxt = document.querySelector('#film-moves-left');
 const guessedTxt = document.querySelector('#film-guessed');
 
-for (let i = 0; i < filmFrames.length; i++) {
-    filmFrames[i].addEventListener('click', revealOrHideFrame)
-    filmFrames[i].textContent = i;
-    // split frames in pairs
-    let randomKey;
-    do {
-        randomKey = Math.floor(Math.random() * 12);
-    } while (countTaken[randomKey] == 2);
-    frameKeys.push(randomKey);
-    countTaken[randomKey]++;
+let imagesChosen, isAnimating, guessedFrames;
+
+function startGame() {
+    clickedFrames = [];
+    frameKeys = []; // index of frame in filmFrames : index of image in imagesChosen
+    countTaken = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    guesses = 0;
+    moves = 20;
+
+    imagesAll.sort(() => 0.5 - Math.random()); // randomly sort the array
+
+    // send chosen movies to parent (for info panel)
+    window.parent.postMessage('picking-films', '*');
+    for (let i = 0; i < 12; i++) window.parent.postMessage(imagesAll[i], "*");
+    window.parent.postMessage('picking-films', '*');
+
+    imagesChosen = imagesAll.slice(0, 12);
+    for (let i = 1; i <= 12; i++) root.style.setProperty('--img' + i, 'url("film_res/' + imagesChosen[i] + '.png")');
+    isAnimating = false;
+    guessedFrames = [];
+
+    for (let i = 0; i < filmFrames.length; i++) {
+        filmFrames[i].addEventListener('click', revealOrHideFrame)
+        filmFrames[i].textContent = i;
+        // split frames in pairs
+        let randomKey;
+        do {
+            randomKey = Math.floor(Math.random() * 12);
+        } while (countTaken[randomKey] == 2);
+        frameKeys.push(randomKey);
+        countTaken[randomKey]++;
+    }
+
+    showGuessesAndMovesLeft(); // needed in case the game is restarting - reset to default values
 }
+
+startGame();
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 
@@ -98,8 +112,7 @@ async function revealOrHideFrame(event) {
             filmFrames[clickedFrames[0]].classList.add('film-frame-done');
             filmFrames[clickedFrames[1]].classList.add('film-frame-done');
 
-            guessedFrames[clickedFrames[0]] = true;
-            guessedFrames[clickedFrames[1]] = true;
+            guessedFrames.push([clickedFrames[0], clickedFrames[1]]);
 
             // restart guess
             clickedFrames.splice(0, 2);
@@ -134,16 +147,13 @@ async function revealOrHideFrame(event) {
 
     // if done
     if (guesses === 12) {
-        // TODO : game won
-        console.log('You have won!');
         for (let frame of filmFrames) {
             frame.removeEventListener('click', revealOrHideFrame);
             frame.classList.add('film-frame-done'); // remove pointer when hovering
         }
+        nextBtn.textContent = 'proceed'; // change button text
     }
     if (moves === 0) {
-        // TODO : game over
-        console.log("Game Over!");
         for (let frame of filmFrames) {
             frame.removeEventListener('click', revealOrHideFrame);
             frame.classList.add('film-frame-done'); // remove pointer when hovering
@@ -176,6 +186,7 @@ const nextBtn = document.querySelector('#film-next-btn-text');
 nextBtn.addEventListener('click', nextBtnClick);
 async function nextBtnClick(event) {
     if (guesses == 12) {
+        // 'close' button animation
         await delay(40);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         context.drawImage(btnBackground, 1050, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
@@ -194,6 +205,24 @@ async function nextBtnClick(event) {
         // notify parent
         window.parent.postMessage('film-won', '*');
     } else {
+        // close any open frame
+        if (clickedFrames.length === 1) {
+            filmFrames[clickedFrames[0]].classList.remove('reveal-frame');
+            root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")');
+            filmFrames[clickedFrames[0]].classList.add('hide-frame');
+            await delay(375);
+        }
+        console.log(guessedFrames);
+        for (const pair of guessedFrames) {
+            filmFrames[pair[0]].classList.remove('reveal-frame');
+            filmFrames[pair[1]].classList.remove('reveal-frame');
+            root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[pair[0]]] + '.png")'); // same image for both
+            filmFrames[pair[0]].classList.add('hide-frame');
+            filmFrames[pair[1]].classList.add('hide-frame');
+            await delay(375);
+        }
+
+        // 'close' and 'open' button animation
         await delay(40);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         context.drawImage(btnBackground, 1050, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
@@ -218,5 +247,8 @@ async function nextBtnClick(event) {
         await delay(40);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         context.drawImage(btnBackground, 0, 0, 1050, 1079, 0, 0, 12 * em, 9 * em);
+
+        // restart the game
+        startGame();
     }
 }

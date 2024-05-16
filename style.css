@@ -5,7 +5,17 @@ body {
 
 /* ****************************************************** */
 
-/* INDEX */
+/** INDEX **/
+
+/* TITLE */
+#index-title {
+    color: white;
+    font-size: 800%;
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+}
 
 /* INTRO SCREEN */
 #intro-screen {
@@ -39,8 +49,8 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    display: none; /* initially not shown */
 }
+.start-screen-hidden {display: none;} /* initially not shown */
 #start-moons {
     aspect-ratio: 1 / 1;
     height: 100%;

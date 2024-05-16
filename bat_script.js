@@ -1,5 +1,6 @@
 'use strict';
 
+// PAUSE/RESUME GAME
 let isPaused = false;
 window.addEventListener('message', function(event) {
     console.log(event.data, isPaused);
@@ -10,6 +11,7 @@ window.addEventListener('message', function(event) {
     }
 });
 
+// TIME GAME
 const timer = document.querySelector('#bat-timer');
 let timeOut = false;
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
@@ -30,11 +32,13 @@ async function timeGame() { // count down
     gameOver();
 }
 
+// UI
 const canvas = document.querySelector('#bat-canvas');
 const ctx = canvas.getContext('2d');
-
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
+
+// ELEMENT DIMENSIONS
 
 // grave dimensions
 const w = window.innerHeight / 5;
@@ -49,14 +53,15 @@ const cloudH = cloudW / 955 * 540;
 const minDistY = cloudH / 3;
 
 // bat dimensions
-const batW = window.innerHeight / 7;
+const batW = window.innerHeight / 6;
 const batH = batW / 300 * 231;
-//const batX = window.innerWidth / 3; // not in the middle to allow some time at the start of the game
-const batX = w * 2; // FIXME
+const batX = w * 2;
 let currY = (window.innerHeight - batH) / 2;
 let currBat = 1; // not 0 to start animation right away
 let goingUp = false;
 let batDispl = 0;
+
+// GRAVITY AND COLLISIONS
 
 // 'gravity' effect for bat's movement
 const accel = 0.2; // acceleration down (px per frame^2)
@@ -71,7 +76,7 @@ let time = 0; // time passed since start of movement (frames), resets whenever s
 // the masks are not exactly on the edge of the images to give the player a bit of leeway, not counting microscopic collisions
 /* graves : - first 3 for collision with left side of base where x added to img's x (same for each part) and y constant (right side not needed, it is impossible to collide with)
             - other 8 for top part where x added to img's x (same for each part) and y added to top img's y (4 for left - entry; 4 for right -exit)
-            -3rd and 4th for long left side (right side not needed, it is impossible to collide with) */
+            - 3rd and 4th for long left side (right side not needed, it is impossible to collide with) */
 const colGravesUp = [[15 * scale, 15 * scale], [16 * scale, 55 * scale], [44 * scale, 55 * scale],
                      [45 * scale, 145 * scale], [61 * scale, 178 * scale], [89 * scale, 202 * scale], [125 * scale, 215 * scale],
                      [245 * scale, 215 * scale], [281 * scale, 202 * scale], [309 * scale, 178 * scale], [325 * scale, 145 * scale]];
@@ -84,10 +89,10 @@ const colGravesDown = [[15 * scale, window.innerHeight - 15 * scale], [16 * scal
             (e.g. leftmost point of wing connecting directly with tip of tail)
             as there is no backward movement
           - both x and y added to img's x and y */
-scale = batW / 1800;
+scale = batW / 1800; // rescale as bat and grave images are not the same size
 const colBats = [[[474 * scale, 942 * scale], [589 * scale, 928 * scale], [607 * scale, 495 * scale], [686 * scale, 237 * scale], [813 * scale, 158 * scale], [1064 * scale, 229 * scale], [1173 * scale, 476 * scale], [1193 * scale, 847 * scale], [1410 * scale, 948 * scale], [1478 * scale, 1078 * scale], [1312 * scale, 1083 * scale], [1155 * scale, 1156 * scale], [939 * scale, 1170 * scale], [736 * scale, 997 * scale]],
                  [[486 * scale, 947 * scale], [600 * scale, 900 * scale], [634 * scale, 379 * scale], [655 * scale, 308 * scale], [814 * scale, 258 * scale], [987 * scale, 373 * scale], [1080 * scale, 589 * scale], [1135 * scale, 829 * scale], [1337 * scale, 843 * scale], [1473 * scale, 893 * scale], [1450 * scale, 957 * scale], [1166 * scale, 1146 * scale], [1043 * scale, 1185 * scale], [910 * scale, 1133 * scale], [671 * scale, 955 * scale], [491 * scale, 1002 * scale]],
-                 [],
+                 [[508 * scale, 935 * scale], [364 * scale, 884 * scale], [458 * scale, 881 * scale], [477 * scale, 816 * scale], [635 * scale, 757 * scale], [640 * scale, 522 * scale], [827 * scale, 443 * scale], [924 * scale, 332 * scale], [1136 * scale, 481 * scale], [1227 * scale, 614 * scale], [1248 * scale, 725 * scale], [1316 * scale, 827 * scale], [1373 * scale, 872 * scale], [1380 * scale, 932 * scale], [1431 * scale, 975 * scale], [1384 * scale, 1012 * scale], [1295 * scale, 990 * scale], [1195 * scale, 1034 * scale], [1160 * scale, 1083 * scale], [981 * scale, 1117 * scale], [823 * scale, 1052 * scale], [628 * scale, 895 * scale], [450 * scale, 1050 * scale]],
                  [],
                  [],
                  [],
@@ -97,12 +102,14 @@ const colBats = [[[474 * scale, 942 * scale], [589 * scale, 928 * scale], [607 *
                  [],
                  []]; // FIXME
 
-// move gravestones and clouds across the screen
+// ANIMATION
+
+// gravestones and clouds across the screen
 const nMidsMax = Math.floor((window.innerHeight - 2 * (h + hT)) / h) - 4; // non-inclusive
 const graves = []; // list of {x, upT, [upMids], upTopY, downT, downTopY, [downMids]}
 const clouds = []; // list of {x, y, sx} where sx is to decide which cloud is used
 
-// prepare all images
+// prepare all images and background
 let loaded = 0;
 const imgBases = new Image();
 imgBases.src = 'bat_res/grave_bases.png';
@@ -206,7 +213,7 @@ function imgOnLoad() {
     }
 }
 
-// animation
+// animate background and bat
 let frameState = 0; // 0,2,4 - clouds move; 0,3 - change bat sprite; 0,1,2,3,4,5 - graves move
 const step = 2;
 function moveBackground() {
@@ -405,25 +412,27 @@ function moveBackground() {
     window.requestAnimationFrame(moveBackground);
 }
 
+// GAME START AND END
+
 let gamePlaying = false;
 let started = false;
 
 document.addEventListener('keydown', function(event) {
     if (event.code === 'Space') {
-        if (gamePlaying) goingUp = true;
+        if (gamePlaying) goingUp = true; // 'jump' up
 
-        if (!gamePlaying && loaded === 15 && !timeOut) {
+        if (!gamePlaying && loaded === 15 && !timeOut) { // resume game
             gamePlaying = true;
             moveBackground();
         }
 
-        if (!started && loaded === 15) {
+        if (!started && loaded === 15) { // start game
             started = true;
             timeGame();
         }
     }
 });
 
-function gameOver() {
+function gameOver() { // TODO
     console.log('game over');
 }
