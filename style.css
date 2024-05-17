@@ -92,6 +92,8 @@ body {
         height: 200vw;
     }
 }
+.dot-btn:hover {cursor: pointer;}
+.not-dot-btn:hover {cursor: initial;}
 
 /* ****************************************************** */
 

@@ -162,24 +162,48 @@ async function hintBtnOnClick(event) {
 }
 
 /* PUZZLE PIECES */
-let piecesShown = 0; // will be revealed as the games are completed
+let piecesShown;
+if (sessionStorage.getItem('piecesShown')) piecesShown = sessionStorage.getItem('piecesShown'); // in case of refreshing page
+else piecesShown = 0; // will be revealed as the games are completed
+
 // arrange puzzle pieces in a random order in toolbar and hide all of them for now
 const puzzlePieces = Array.from(document.querySelectorAll('.puzzle-piece'));
 const puzzlePiecesUse = Array.from(document.querySelectorAll('.puzzle-piece-use'));
-const usedPiecesIdx = [];
-const piecesRotation = new Array(48); // number of ccw 90deg rotations (0, 1, 2, 3)
-for (let i = 0; i < puzzlePieces.length; i++) {
-    let k;
-    do {
-        k = Math.floor(Math.random()*puzzlePieces.length) + 1; // '+1' as images are numbered from 1, not 0
-    } while (usedPiecesIdx.includes(k - 1));
-    usedPiecesIdx.push(k - 1);
-    puzzlePieces[i].style.backgroundImage = 'url(puzzle_res/' + k + '.png)';
+let piecesRotation = new Array(48); // number of ccw 90deg rotations (0, 1, 2, 3)
 
-    const r = Math.floor(Math.random()*4);
-    piecesRotation[k - 1] = r;
-    puzzlePieces[i].style.transform = 'translateY(0.4em) rotate(' + (r*90) + 'deg)'; // translateY to not lose initial placement
+let pieceOrder = [];
+if (sessionStorage.getItem('puzzleBg')) { // retrieve order and transformations (rotation)
+    pieceOrder = sessionStorage.getItem('puzzleBg').split(';'); // order of shuffled array
+    piecesRotation = sessionStorage.getItem('puzzleRot').split(';'); // array of rotation values
+    
+    for (let i = 0; i < pieceOrder.length; i++) { // convert to integers for mathematical operations later
+        pieceOrder[i] = parseInt(pieceOrder[i]);
+        piecesRotation[pieceOrder[i] - 1] = parseInt(piecesRotation[pieceOrder[i] - 1]);
+    }
 }
+else {
+    for (let i = 0; i < puzzlePieces.length; i++) {
+        let k;
+        do {
+            k = Math.floor(Math.random()*puzzlePieces.length) + 1; // '+1' as images are numbered from 1, not 0
+        } while (pieceOrder.includes(k - 1));
+        pieceOrder.push(k - 1);
+
+        const r = Math.floor(Math.random()*4);
+        piecesRotation[k - 1] = r;
+    }
+    
+    sessionStorage.setItem('puzzleBg', pieceOrder.join(';'));
+    sessionStorage.setItem('puzzleRot', piecesRotation.join(';'));
+}
+
+for (let i = 0; i < puzzlePieces.length; i++) { // set backgrounds and rotations
+    puzzlePieces[i].style.backgroundImage = 'url(puzzle_res/' + (pieceOrder[i] + 1) + '.png)';
+    puzzlePieces[i].style.transform = 'translateY(0.4em) rotate(' + (piecesRotation[pieceOrder[i]]*90) + 'deg)'; // translateY to not lose initial placement
+}
+
+// in case of refreshing, show needed number of pieces
+for (let i = 0; i < piecesShown; i++) puzzlePieces[i].classList.remove('puzzle-piece-hidden');
 
 /* SOLVING PUZZLE */
 function puzzleGame() {
@@ -212,7 +236,7 @@ function puzzleGame() {
     puzzleGrid.addEventListener('drop', (event) => {
         event.preventDefault();
 
-        const i = usedPiecesIdx[puzzlePieces.indexOf(draggedPiece)];
+        const i = pieceOrder[puzzlePieces.indexOf(draggedPiece)];
 
         if (!playablePieces.includes(i)) { // prevent drop of already droppped pieces or already placed pieces (which cannot be moved anymore)
             // reveal piece within grid
@@ -314,8 +338,15 @@ function puzzleGame() {
 /** MINIGAME INSIDE **/
 
 const minigame = document.querySelector('#minigame');
-let currGame = 'blackout'; // FIXME
-minigame.src = 'blackout.html'; // FIXME
+let currGame;
+if (sessionStorage.getItem('currGame')) {
+    currGame = sessionStorage.getItem('currGame');
+    minigame.src = currGame + '.html';
+} else {
+    sessionStorage.setItem('currGame', 'bat'); // FIXME
+    currGame = 'bat'; // FIXME
+    minigame.src = 'bat.html'; // FIXME
+}
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 
@@ -332,6 +363,17 @@ window.addEventListener('message', async function(event) {
             // FIXME : for now continue to blackout
             currGame = 'blackout';
             transition('blackout.html');
+            sessionStorage.setItem('currGame', 'blackout');
+
+            break;
+        case 'bat-won':
+            gameWon(8); // FIXME number of pieces to be shown
+
+            // transition between minigames
+            // FIXME : for now continue to labyrinth
+            currGame = 'labyrinth';
+            transition('labyrinth.html');
+            sessionStorage.setItem('currGame', 'labyrinth');
 
             break;
         case 'labyrinth-won':
@@ -382,5 +424,6 @@ async function updateProgress(n) {
         puzzlePieces[i].classList.remove('puzzle-piece-hidden');
         await delay(200); // show one by one
     }
-    piecesShown += n; // FIXME
+    piecesShown += n;
+    sessionStorage.setItem('piecesShown', piecesShown);
 }

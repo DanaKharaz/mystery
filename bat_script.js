@@ -434,5 +434,6 @@ document.addEventListener('keydown', function(event) {
 });
 
 function gameOver() { // TODO
-    console.log('game over');
+    // notify parent
+    window.parent.postMessage('bat-won', '*');
 }
