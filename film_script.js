@@ -71,14 +71,23 @@ function startGame() {
         } while (countTaken[randomKey] == 2);
         frameKeys.push(randomKey);
         countTaken[randomKey]++;
+
+        filmFrames[i].classList.remove('film-frame-done'); // in case restarting - pointer when hovering
     }
 
-    showGuessesAndMovesLeft(); // needed in case the game is restarting - reset to default values
+    showGuessesAndMovesLeft(); // in case restarting - reset to default values
 }
 
 startGame();
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
+
+const animDur = 375;
+const animationVals = {
+    duration: animDur,
+    iterations: 1,
+    fill: 'forwards'
+}
 
 async function revealOrHideFrame(event) {
     if (isAnimating) { // not to interrupt other animation
@@ -87,17 +96,21 @@ async function revealOrHideFrame(event) {
 
     const chosenFrame = event.target;
     const index = filmFrames.indexOf(chosenFrame);
-    // FIXME const key = frameKeys.indexOf(index) + 1;
 
     // action
     if (clickedFrames.includes(index)) { // this one is already clicked, so ignore
         return;
     } else { // reveal frame
-        root.style.setProperty('--currImg', 'url("film_res/' + imagesChosen[frameKeys[index]] + '.png")');
-        chosenFrame.classList.add('reveal-frame');
-        chosenFrame.classList.remove('hide-frame');
-        /* FIXME chosenFrame.classList.add('reveal-frame' + key);
-        chosenFrame.classList.remove('hide-frame' + key); */
+        chosenFrame.animate([ // turn halfway (perpendicular to screen)
+            {transform: 'rotateY(180deg)', opacity: 1, easing: 'ease-in'},
+            {transform: 'rotateY(90deg)', content: 'url(film_res/film_back.png)', opacity: 1},
+        ], animationVals);
+        await delay(animDur);
+        chosenFrame.animate([ // turn fully, showing image behind
+            {transform: 'rotateY(90deg)', content: 'url("film_res/' + imagesChosen[frameKeys[index]] + '.png")', opacity: 0},
+            {transform: 'rotateY(0)', content: 'url("film_res/' + imagesChosen[frameKeys[index]] + '.png")', opacity: 1, easing: 'ease-out'},
+        ] , animationVals);
+        
         clickedFrames.push(index);
     }
 
@@ -112,7 +125,8 @@ async function revealOrHideFrame(event) {
             filmFrames[clickedFrames[0]].classList.add('film-frame-done');
             filmFrames[clickedFrames[1]].classList.add('film-frame-done');
 
-            guessedFrames.push([clickedFrames[0], clickedFrames[1]]);
+            guessedFrames.push(clickedFrames[0]);
+            guessedFrames.push(clickedFrames[1]);
 
             // restart guess
             clickedFrames.splice(0, 2);
@@ -120,23 +134,33 @@ async function revealOrHideFrame(event) {
             guesses++;
         } else { // wrong guess
             isAnimating = true;
-            // FIXME await delay(1000);
-            await delay(500);
-            filmFrames[clickedFrames[0]].classList.remove('reveal-frame');
-            root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")');
-            filmFrames[clickedFrames[0]].classList.add('hide-frame');
-            await delay(375);
-            filmFrames[clickedFrames[1]].classList.remove('reveal-frame');
-            root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[1]]] + '.png")');
-            filmFrames[clickedFrames[1]].classList.add('hide-frame');
-            await delay(375);
-            /* FIXME const k0 = frameKeys.indexOf(clickedFrames[0]) + 1;
-            const k1 = frameKeys.indexOf(clickedFrames[1]) + 1;
-            filmFrames[clickedFrames[0]].classList.remove('reveal-frame' + k0);
-            filmFrames[clickedFrames[0]].classList.add('hide-frame' + k0);
-            filmFrames[clickedFrames[1]].classList.remove('reveal-frame' + k1);
-            filmFrames[clickedFrames[1]].classList.add('hide-frame' + k1);
-            await delay(375); */
+
+            await delay(750);
+
+            // define content from the start animation as otherwise reverts to default (back of film) in Chrome
+
+            // turn both halfway (perpendicular to screen)
+            filmFrames[clickedFrames[0]].animate([
+                {transform: 'rotateY(0)', content: 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")', opacity: 1, easing: 'ease-in'},
+                {transform: 'rotateY(90deg)', content: 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")', opacity: 1},
+            ], animationVals);
+            filmFrames[clickedFrames[1]].animate([
+                {transform: 'rotateY(0)', content: 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[1]]] + '.png")', opacity: 1, easing: 'ease-in'},
+                {transform: 'rotateY(90deg)', content: 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[1]]] + '.png")', opacity: 1},
+            ], animationVals);
+
+            await delay(animDur); // wait for prev animation to end
+
+            // turn both fully
+            filmFrames[clickedFrames[0]].animate([
+                {transform: 'rotateY(90deg)', content: 'url(film_res/film_back.png)', opacity: 0},
+                {transform: 'rotateY(180deg)', content: 'url(film_res/film_back.png)', opacity: 1, easing: 'ease-out'},
+            ] , animationVals);
+            filmFrames[clickedFrames[1]].animate([ // turn fully
+                {transform: 'rotateY(90deg)', content: 'url(film_res/film_back.png)', opacity: 0},
+                {transform: 'rotateY(180deg)', content: 'url(film_res/film_back.png)', opacity: 1, easing: 'ease-out'},
+            ] , animationVals);
+
             isAnimating = false;
             clickedFrames.splice(0, 2);
         }
@@ -184,7 +208,10 @@ btnBackground.onload = function() {
 // buttom click
 const nextBtn = document.querySelector('#film-next-btn-text');
 nextBtn.addEventListener('click', nextBtnClick);
+let animating = false;
 async function nextBtnClick(event) {
+    if (animating) return;
+
     if (guesses == 12) {
         // 'close' button animation
         await delay(40);
@@ -205,21 +232,34 @@ async function nextBtnClick(event) {
         // notify parent
         window.parent.postMessage('film-won', '*');
     } else {
-        // close any open frame
+        animating = true;
+        // close open frame if clicked mid guess
         if (clickedFrames.length === 1) {
-            filmFrames[clickedFrames[0]].classList.remove('reveal-frame');
-            root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")');
-            filmFrames[clickedFrames[0]].classList.add('hide-frame');
-            await delay(375);
+            filmFrames[clickedFrames[0]].animate([ // turn halfway (perpendicular to screen)
+                {transform: 'rotateY(0)', content: 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")', opacity: 1, easing: 'ease-in'},
+                {transform: 'rotateY(90deg)', content: 'url("film_res/' + imagesChosen[frameKeys[clickedFrames[0]]] + '.png")', opacity: 1},
+            ], animationVals);
+
+            await delay(animDur); // wait for prev animation to end
+
+            filmFrames[clickedFrames[0]].animate([ // turn fully
+                {transform: 'rotateY(90deg)', content: 'url(film_res/film_back.png)', opacity: 0},
+                {transform: 'rotateY(180deg)', content: 'url(film_res/film_back.png)', opacity: 1, easing: 'ease-out'},
+            ] , animationVals);
         }
-        console.log(guessedFrames);
-        for (const pair of guessedFrames) {
-            filmFrames[pair[0]].classList.remove('reveal-frame');
-            filmFrames[pair[1]].classList.remove('reveal-frame');
-            root.style.setProperty('--prevImg', 'url("film_res/' + imagesChosen[frameKeys[pair[0]]] + '.png")'); // same image for both
-            filmFrames[pair[0]].classList.add('hide-frame');
-            filmFrames[pair[1]].classList.add('hide-frame');
-            await delay(375);
+        // close guessed frames
+        for (const i of guessedFrames) {
+            filmFrames[i].animate([ // turn halfway (perpendicular to screen)
+                {transform: 'rotateY(0)', content: 'url("film_res/' + imagesChosen[frameKeys[i]] + '.png")', opacity: 1, easing: 'ease-in'},
+                {transform: 'rotateY(90deg)', content: 'url("film_res/' + imagesChosen[frameKeys[i]] + '.png")', opacity: 1},
+            ], animationVals);
+        }
+        await delay(animDur); // wait for prev animation to end
+        for (const i of guessedFrames) {
+            filmFrames[i].animate([ // turn fully
+                {transform: 'rotateY(90deg)', content: 'url(film_res/film_back.png)', opacity: 0},
+                {transform: 'rotateY(180deg)', content: 'url(film_res/film_back.png)', opacity: 1, easing: 'ease-out'},
+            ] , animationVals);
         }
 
         // 'close' and 'open' button animation
@@ -250,5 +290,7 @@ async function nextBtnClick(event) {
 
         // restart the game
         startGame();
+
+        animating = false;
     }
 }
