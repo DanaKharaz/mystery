@@ -1,6 +1,7 @@
 body {
     background-color: black;
     font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
 }
 
 /* ****************************************************** */
@@ -94,6 +95,18 @@ body {
 }
 .dot-btn:hover {cursor: pointer;}
 .not-dot-btn:hover {cursor: initial;}
+#dot-counter {
+    position: fixed;
+    top: 0.4em;
+    right: 0.4em;
+    z-index: 1;
+    border: white solid 0.1em;
+    background-color: black;
+    color: white;
+    padding: 0.3em;
+    padding-left: 0.5em;
+    display: none; /* initially hidden */
+}
 
 /* ****************************************************** */
 
@@ -487,7 +500,6 @@ hr {
 
 /* BAT */
 #bat-canvas { /* width and height will be set in script for better image quality and scaling */
-    background-color: black;
     position: fixed;
     top: 0;
     left: 0;
@@ -514,4 +526,60 @@ hr {
     top: 50vh;
     left: 50vw;
     transform: translate(-50%, -50%);
+}
+
+/* ****************************************************** */
+
+/** SCREAM **/
+
+#scream-canvas { /* width and height will be set in script for better image quality and scaling */
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+/* PHRASE BOARD */
+#scream-phrase-container {
+    background-color: #959595;
+    width: 88.5vw;
+    position: fixed;
+    top: 3vh;
+    left: 50vw;
+    transform: translate(-50%, 0);
+    text-align: center;
+    padding: 0.7em 1em;
+}
+.scream-letter, .scream-symbol {
+    display: inline-block;
+    font-size: 150%;
+    width: fit-content;
+    margin: 0.3em 0.1em;
+    padding: 0.2em;
+    cursor: default;
+}
+.scream-letter {
+    background-color: #3b3b3b;
+    color: #959595;
+}
+.scream-symbol {color: #3b3b3b;}
+
+/* WHEEL & SPEECH */
+#scream-wheel {
+    position: fixed;
+    top: 300px;
+    left: 400px;
+    width: 400px;
+    transform: rotate(11.25deg);
+}
+#scream-wheel-frame {
+    position: fixed;
+    top: 300px;
+    left: 400px;
+    width: 400px;
+}
+#scream-host {
+    position: fixed;
+    bottom: 0.4em;
+    right: 0.4em;
+    width: 200px;
 }

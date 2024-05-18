@@ -82,6 +82,10 @@ async function infoBtnOnClick(event) {
     } else {
         // set correct text to panel
         switch(currGame) { // TODO : arrange in proper order (for readability) // using innerHTML : a) for appearane (italics, bold); b) data not editable by user
+            case 'scream':
+                // TODO
+                sidePanel.innerHTML = '<b>game rules</b>: ???<br><br><b>references</b>: Scream<br><br><b>music</b>: ???';
+                break;
             case 'film':
                 // TODO
                 let references = '';
@@ -141,6 +145,9 @@ async function hintBtnOnClick(event) {
             hintGiven = true;
             hintTooltip.textContent = 'hints left: ' + (hints - 1)
             switch(currGame) {
+                case 'scream':
+                    // TODO
+                    break;
                 case 'labyrinth1':
                     sidePanel.textContent = 'to start the game click the "Tab" key, afterwards simply move through the maze';
                     break;
@@ -343,9 +350,9 @@ if (sessionStorage.getItem('currGame')) {
     currGame = sessionStorage.getItem('currGame');
     minigame.src = currGame + '.html';
 } else {
-    sessionStorage.setItem('currGame', 'bat'); // FIXME
-    currGame = 'bat'; // FIXME
-    minigame.src = 'bat.html'; // FIXME
+    sessionStorage.setItem('currGame', 'scream'); // FIXME
+    currGame = 'scream'; // FIXME
+    minigame.src = 'scream.html'; // FIXME
 }
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
