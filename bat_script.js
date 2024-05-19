@@ -16,8 +16,9 @@ const timer = document.querySelector('#bat-timer');
 let timeOut = false;
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 async function timeGame() { // count down
-    for (let i = 89; i >= 0; i--) {
-        await delay(1000);
+    await delay(200); // smoother start to timer
+
+    for (let i = 9; i >= 0; i--) {
         let m;
         if (i >= 60) m = '01';
         else m = '00';
@@ -26,6 +27,8 @@ async function timeGame() { // count down
         else timer.textContent = m + ':' + s;
 
         if (!gamePlaying) return;
+
+        await delay(1000);
     }
     timeOut = true;
     gamePlaying = false;
@@ -55,7 +58,7 @@ const minDistY = cloudH / 3;
 // bat dimensions
 const batW = window.innerHeight / 6;
 const batH = batW / 300 * 231;
-const batX = w * 2;
+const batX = w * 2.5;
 let currY = (window.innerHeight - batH) / 2;
 let currBat = 1; // not 0 to start animation right away
 let goingUp = false;
@@ -68,7 +71,7 @@ const accel = 0.2; // acceleration down (px per frame^2)
 let y0 = (window.innerHeight - batH) / 2; // starting position (px), resets whenever starting to go upward
 let v0 = 0; // initial velocity (px per frame)
 const upFrames = 60; // how long upward movement lasts
-let velUp = (batH - 0.5 * accel * upFrames**2) / upFrames; // initial velocity when going upward (px per frame)
+const velUp = (batH - 0.5 * accel * upFrames**2) / upFrames; // initial velocity when going upward (px per frame)
 let time = 0; // time passed since start of movement (frames), resets whenever starting to go upward
 
 /* collision masks : - arrays of poit coordinates, if a line of bat mask intersects a line of grave mask, then a collision happened
@@ -93,19 +96,19 @@ scale = batW / 1800; // rescale as bat and grave images are not the same size
 const colBats = [[[474 * scale, 942 * scale], [589 * scale, 928 * scale], [607 * scale, 495 * scale], [686 * scale, 237 * scale], [813 * scale, 158 * scale], [1064 * scale, 229 * scale], [1173 * scale, 476 * scale], [1193 * scale, 847 * scale], [1410 * scale, 948 * scale], [1478 * scale, 1078 * scale], [1312 * scale, 1083 * scale], [1155 * scale, 1156 * scale], [939 * scale, 1170 * scale], [736 * scale, 997 * scale]],
                  [[486 * scale, 947 * scale], [600 * scale, 900 * scale], [634 * scale, 379 * scale], [655 * scale, 308 * scale], [814 * scale, 258 * scale], [987 * scale, 373 * scale], [1080 * scale, 589 * scale], [1135 * scale, 829 * scale], [1337 * scale, 843 * scale], [1473 * scale, 893 * scale], [1450 * scale, 957 * scale], [1166 * scale, 1146 * scale], [1043 * scale, 1185 * scale], [910 * scale, 1133 * scale], [671 * scale, 955 * scale], [491 * scale, 1002 * scale]],
                  [[508 * scale, 935 * scale], [364 * scale, 884 * scale], [458 * scale, 881 * scale], [477 * scale, 816 * scale], [635 * scale, 757 * scale], [640 * scale, 522 * scale], [827 * scale, 443 * scale], [924 * scale, 332 * scale], [1136 * scale, 481 * scale], [1227 * scale, 614 * scale], [1248 * scale, 725 * scale], [1316 * scale, 827 * scale], [1373 * scale, 872 * scale], [1380 * scale, 932 * scale], [1431 * scale, 975 * scale], [1384 * scale, 1012 * scale], [1295 * scale, 990 * scale], [1195 * scale, 1034 * scale], [1160 * scale, 1083 * scale], [981 * scale, 1117 * scale], [823 * scale, 1052 * scale], [628 * scale, 895 * scale], [450 * scale, 1050 * scale]],
-                 [],
-                 [],
-                 [],
-                 [],
-                 [],
-                 [],
-                 [],
-                 []]; // FIXME
+                 [[340 * scale, 974 * scale], [510 * scale, 913 * scale], [570 * scale, 996 * scale], [679 * scale, 839 * scale], [735 * scale, 849 * scale], [887 * scale, 789 * scale], [973 * scale, 807 * scale], [1042 * scale, 801 * scale], [1133 * scale, 747 * scale], [1241 * scale, 802 * scale], [1316 * scale, 827 * scale], [1373 * scale, 872 * scale], [1431 * scale, 975 * scale], [1457 * scale, 1116 * scale], [1523 * scale, 1190 * scale], [1354 * scale, 1157 * scale], [1177 * scale, 1254 * scale], [1028 * scale, 1149 * scale], [855 * scale, 1184 * scale], [684 * scale, 1024 * scale], [562 * scale, 992 * scale], [429 * scale, 1058 * scale], [359 * scale, 997 * scale]],
+                 [[350 * scale, 1100 * scale], [449 * scale, 991 * scale], [570 * scale, 906 * scale], [687 * scale, 821 * scale], [882 * scale, 774 * scale], [1121 * scale, 784 * scale], [1114 * scale, 733 * scale], [1138 * scale, 716 * scale], [1429 * scale, 858 * scale], [1529 * scale, 948 * scale], [1600 * scale, 1050 * scale], [1647 * scale, 1158 * scale], [1663 * scale, 1265 * scale], [1197 * scale, 1292 * scale], [1087 * scale, 1200 * scale], [849 * scale, 1232 * scale], [748 * scale, 1110 * scale], [388 * scale, 1111 * scale]],
+                 [[366 * scale, 1185 * scale], [328 * scale, 1165 * scale], [360 * scale, 1036 * scale], [494 * scale, 916 * scale], [647 * scale, 842 * scale], [833 * scale, 772 * scale], [983 * scale, 756 * scale], [1063 * scale, 692 * scale], [1113 * scale, 675 * scale], [1220 * scale, 714 * scale], [1265 * scale, 716 * scale], [1528 * scale, 907 * scale], [1600 * scale, 800 * scale], [1676 * scale, 1253 * scale], [1164 * scale, 1289 * scale], [1031 * scale, 1221 * scale], [815 * scale, 1229 * scale], [382 * scale, 1034 * scale]],
+                 [[338 * scale, 1140 * scale], [285 * scale, 1161 * scale], [347 * scale, 1021 * scale], [455 * scale, 919 * scale], [544 * scale, 881 * scale], [622 * scale, 874 * scale], [780 * scale, 649 * scale], [910 * scale, 741 * scale], [1048 * scale, 609 * scale], [1159 * scale, 608 * scale], [1389 * scale, 702 * scale], [1593 * scale, 852 * scale], [1699 * scale, 991 * scale], [1734 * scale, 1118 * scale], [1401 * scale, 1131 * scale], [1245 * scale, 1278 * scale], [940 * scale, 1192 * scale], [838 * scale, 1222 * scale], [363 * scale, 1047 * scale]],
+                 [[338 * scale, 1117 * scale], [291 * scale, 1049 * scale], [497 * scale, 932 * scale], [575 * scale, 861 * scale], [688 * scale, 818 * scale], [826 * scale, 689 * scale], [906 * scale, 653 * scale], [987 * scale, 658 * scale], [1046 * scale, 598 * scale], [1119 * scale, 551 * scale], [1210 * scale, 537 * scale], [1287 * scale, 581 * scale], [1388 * scale, 707 * scale], [1405 * scale, 843 * scale], [1478 * scale, 879 * scale], [1480 * scale, 945 * scale], [1543 * scale, 989 * scale], [1496 * scale, 1038 * scale], [1315 * scale, 1029 * scale], [1253 * scale, 1158 * scale], [1197 * scale, 1092 * scale], [1093 * scale, 1114 * scale], [788 * scale, 1025 * scale], [740 * scale, 1009 * scale]],
+                 [[361 * scale, 1090 * scale], [286 * scale, 1010 * scale], [450 * scale, 977 * scale], [526 * scale, 871 * scale], [788 * scale, 730 * scale], [880 * scale, 570 * scale], [1158 * scale, 369 * scale], [1316 * scale, 624 * scale], [1216 * scale, 723 * scale], [1500 * scale, 900 * scale], [1502 * scale, 952 * scale], [1562 * scale, 1016 * scale], [1512 * scale, 1056 * scale], [1393 * scale, 1014 * scale], [1251 * scale, 1089 * scale], [1124 * scale, 1102 * scale], [1004 * scale, 1080 * scale], [926 * scale, 1021 * scale]],
+                 [[386 * scale, 1186 * scale], [316 * scale, 1044 * scale], [443 * scale, 1044 * scale], [502 * scale, 933 * scale], [649 * scale, 758 * scale], [851 * scale, 580 * scale], [984 * scale, 489 * scale], [967 * scale, 338 * scale], [1050 * scale, 287 * scale], [1185 * scale, 270 * scale], [1282 * scale, 290 * scale], [1268 * scale, 724 * scale], [1341 * scale, 815 * scale], [1482 * scale, 886 * scale], [1502 * scale, 952 * scale], [1554 * scale, 1010 * scale], [1500 * scale, 1042 * scale], [1307 * scale, 1042 * scale], [1298 * scale, 1086 * scale], [1185 * scale, 1143 * scale], [989 * scale, 1124 * scale]],
+                 [[459 * scale, 890 * scale], [725 * scale, 774 * scale], [727 * scale, 681 * scale], [815 * scale, 387 * scale], [921 * scale, 250 * scale], [921 * scale, 100 * scale], [1112 * scale, 140 * scale], [1219 * scale, 312 * scale], [1289 * scale, 480 * scale], [1270 * scale, 723 * scale], [1363 * scale, 830 * scale], [1477 * scale, 874 * scale], [1485 * scale, 934 * scale], [1543 * scale, 998 * scale], [1492 * scale, 1039 * scale], [1424 * scale, 1002 * scale], [1186 * scale, 1131 * scale], [991 * scale, 1131 * scale], [774 * scale, 976 * scale], [699 * scale, 953 * scale]]];
 
 // ANIMATION
 
 // gravestones and clouds across the screen
-const nMidsMax = Math.floor((window.innerHeight - 2 * (h + hT)) / h) - 4; // non-inclusive
+const nMidsMax = Math.floor((window.innerHeight - 2 * (h + hT)) / h) - 5; // non-inclusive
 const graves = []; // list of {x, upT, [upMids], upTopY, downT, downTopY, [downMids]}
 const clouds = []; // list of {x, y, sx} where sx is to decide which cloud is used
 
@@ -131,6 +134,15 @@ for (let i = 0; i < 11; i++) {
     imgBats.push(img);
 }
 function imgOnLoad() {
+    if (restarted) {
+        restartBtn.removeEventListener('click', imgOnLoad);
+        restartBtn.style.display = 'none';
+        // remove previous background and make game playable again
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        document.addEventListener('keydown', fly);
+        timer.textContent = '01:30';
+    }
+
     loaded++;
     if (loaded === 15) { // all images are loaded
         // create initial clouds
@@ -215,7 +227,7 @@ function imgOnLoad() {
 
 // animate background and bat
 let frameState = 0; // 0,2,4 - clouds move; 0,3 - change bat sprite; 0,1,2,3,4,5 - graves move
-const step = 2;
+const step = 2.5;
 function moveBackground() {
     if (isPaused || !gamePlaying) return; // no animation
 
@@ -244,7 +256,7 @@ function moveBackground() {
 
     // GRAVES
 
-    let currGrave;
+    let currGrave = 0;
     for (let i = 0; i < graves.length; i++) { // move graves  
         // UP
         // base
@@ -332,78 +344,76 @@ function moveBackground() {
         gamePlaying = false;
         gameOver();
     }
-    // TODO : optimize calculations (?)
-    if (currGrave) { // bat is passing one of the graves
-        let collided = false;
-        for (let b = 0; b < colBats[currBat].length - 1; b++) {
+    
+    let collided = false;
+    for (let b = 0; b < colBats[currBat].length - 1; b++) { // collision with relevant grave
+        // coordinates
+        const bx1 = colBats[currBat][b][0] + batX;
+        const by1 = colBats[currBat][b][1] + currY;
+        const bx2 = colBats[currBat][b + 1][0] + batX;
+        const by2 = colBats[currBat][b + 1][1] + currY;
+        // line equation
+        const bm = (by2 - by1) / (bx2 - bx1);
+        const bc = by1 - bm * bx1;
+
+        for (let g = 0; g < colGravesUp.length - 1; g++) { // upper grave collision
             // coordinates
-            const bx1 = colBats[currBat][b][0] + batX;
-            const by1 = colBats[currBat][b][1] + currY;
-            const bx2 = colBats[currBat][b + 1][0] + batX;
-            const by2 = colBats[currBat][b + 1][1] + currY;
+            const gx1 = graves[currGrave]['x'] + colGravesUp[g][0];
+            const gx2 = graves[currGrave]['x'] + colGravesUp[g + 1][0];
+            let gy1, gy2;
+            if (g < 3) gy1 = colGravesUp[g][1]; // base point
+            else gy1 = graves[currGrave]['upTopY'] + colGravesUp[g][1]; // top point
+            if (g < 2) gy2 = colGravesUp[g + 1][1]; // base point
+            else gy2 = graves[currGrave]['upTopY'] + colGravesUp[g + 1][1] // top point
             // line equation
-            const bm = (by2 - by1) / (bx2 - bx1);
-            const bc = by1 - bm * bx1;
+            const gm = (gy2 - gy1) / (gx2 - gx1);
+            const gc = gy1 - gm * gx1;
 
-            for (let g = 0; g < colGravesUp.length - 1; g++) { // upper graves
-                // coordinates
-                const gx1 = graves[currGrave]['x'] + colGravesUp[g][0];
-                const gx2 = graves[currGrave]['x'] + colGravesUp[g + 1][0];
-                let gy1, gy2;
-                if (g < 3) gy1 = colGravesUp[g][1]; // base point
-                else gy1 = graves[currGrave]['upTopY'] + colGravesUp[g][1]; // top point
-                if (g < 2) gy2 = colGravesUp[g + 1][1]; // base point
-                else gy2 = graves[currGrave]['upTopY'] + colGravesUp[g + 1][1] // top point
-                // line equation
-                const gm = (gy2 - gy1) / (gx2 - gx1);
-                const gc = gy1 - gm * gx1;
-
-                // intersection point
-                const ix = (gc - bc) / (bm - gm);
-                const iy = gm * ix + gc;
+            // intersection point
+            const ix = (gc - bc) / (bm - gm);
+            const iy = gm * ix + gc;
                     
-                // if intersection on the segments, then collision happened
-                if (ix <= Math.max(bx1, bx2) && ix >= Math.min(bx1, bx2) &&
-                    iy <= Math.max(by1, by2) && iy >= Math.min(by1, by2) &&
-                    ix <= Math.max(gx1, gx2) && ix >= Math.min(gx1, gx2) &&
-                    iy <= Math.max(gy1, gy2) && iy >= Math.min(gy1, gy2)) {
-                    collided = true;
-                    break;
-                }
-            }
-
-            for (let g = 0; g < colGravesDown.length - 1; g++) { // lower graves
-                // coordinates
-                const gx1 = graves[currGrave]['x'] + colGravesDown[g][0];
-                const gx2 = graves[currGrave]['x'] + colGravesDown[g + 1][0];
-                let gy1, gy2;
-                if (g < 3) gy1 = colGravesDown[g][1]; // base point
-                else gy1 = graves[currGrave]['upDownY'] + colGravesDown[g][1]; // top point
-                if (g < 2) gy2 = colGravesDown[g + 1][1]; // base point
-                else gy2 = graves[currGrave]['upDownY'] + colGravesDown[g + 1][1]; // top point
-                // line equation
-                const gm = (gy2 - gy1) / (gx2 - gx1);
-                const gc = gy1 - gm * gx1;
-
-                // intersection point
-                const ix = (gc - bc) / (bm - gm);
-                const iy = gm * ix + gc;
-
-                // if intersection on the segments, then collision happened
-                if (ix <= Math.max(bx1, bx2) && ix >= Math.min(bx1, bx2) &&
-                    iy <= Math.max(by1, by2) && iy >= Math.min(by1, by2) &&
-                    ix <= Math.max(gx1, gx2) && ix >= Math.min(gx1, gx2) &&
-                    iy <= Math.max(gy1, gy2) && iy >= Math.min(gy1, gy2)) {
-                    collided = true;
-                    break;
-                }
-            }
-
-            if (collided) { // game lost
-                gamePlaying = false;
-                gameOver();
+            // if intersection on the segments, then collision happened
+            if (ix <= Math.max(bx1, bx2) && ix >= Math.min(bx1, bx2) &&
+                iy <= Math.max(by1, by2) && iy >= Math.min(by1, by2) &&
+                ix <= Math.max(gx1, gx2) && ix >= Math.min(gx1, gx2) &&
+                iy <= Math.max(gy1, gy2) && iy >= Math.min(gy1, gy2)) {
+                collided = true;
                 break;
             }
+        }
+
+        for (let g = 0; g < colGravesDown.length - 1; g++) { // lower grave collision
+            // coordinates
+            const gx1 = graves[currGrave]['x'] + colGravesDown[g][0];
+            const gx2 = graves[currGrave]['x'] + colGravesDown[g + 1][0];
+            let gy1, gy2;
+            if (g < 3) gy1 = colGravesDown[g][1]; // base point
+            else gy1 = graves[currGrave]['downTopY'] + colGravesDown[g][1]; // top point
+            if (g < 2) gy2 = colGravesDown[g + 1][1]; // base point
+            else gy2 = graves[currGrave]['downTopY'] + colGravesDown[g + 1][1]; // top point
+            // line equation
+            const gm = (gy2 - gy1) / (gx2 - gx1);
+            const gc = gy1 - gm * gx1;
+
+            // intersection point
+            const ix = (gc - bc) / (bm - gm);
+            const iy = gm * ix + gc;
+
+            // if intersection on the segments, then collision happened
+            if (ix <= Math.max(bx1, bx2) && ix >= Math.min(bx1, bx2) &&
+                iy <= Math.max(by1, by2) && iy >= Math.min(by1, by2) &&
+                ix <= Math.max(gx1, gx2) && ix >= Math.min(gx1, gx2) &&
+                iy <= Math.max(gy1, gy2) && iy >= Math.min(gy1, gy2)) {
+                collided = true;
+                break;
+            }
+        }
+
+        if (collided) { // game lost
+            gamePlaying = false;
+            gameOver();
+            break;
         }
     }
 
@@ -417,7 +427,8 @@ function moveBackground() {
 let gamePlaying = false;
 let started = false;
 
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', fly);
+function fly(event) {
     if (event.code === 'Space') {
         if (gamePlaying) goingUp = true; // 'jump' up
 
@@ -431,9 +442,45 @@ document.addEventListener('keydown', function(event) {
             timeGame();
         }
     }
-});
+}
 
-function gameOver() { // TODO
-    // notify parent
-    window.parent.postMessage('bat-won', '*');
+const restartBtn = document.querySelector('#bat-restart');
+let restarted = false;
+
+async function gameOver() {
+    document.removeEventListener('keydown', fly);
+
+    if (timeOut) { // game won, move on to next
+        await delay(500);
+
+        restartBtn.style.display = 'initial';
+        restartBtn.cursor = 'default';
+        restartBtn.textContent = 'CONGRATULATIONS'
+
+        await delay(1500);
+
+        // notify parent
+        window.parent.postMessage('bat-won', '*');
+    } else { // game lost, restart
+        restarted = true;
+
+        // reset vars
+        timeOut = false;
+        currY = (window.innerHeight - batH) / 2;
+        currBat = 1;
+        goingUp = false;
+        batDispl = 0;
+        y0 = (window.innerHeight - batH) / 2;
+        v0 = 0;
+        time = 0;
+        graves.splice(0, graves.length);
+        clouds.splice(0, clouds.length);
+        frameState = 0;
+        gamePlaying = false;
+        started = false;
+
+        loaded = 14;
+        restartBtn.style.display = 'initial';
+        restartBtn.addEventListener('click', imgOnLoad);
+    }
 }

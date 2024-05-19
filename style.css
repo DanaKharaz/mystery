@@ -514,6 +514,19 @@ hr {
     font-size: xx-large;
     padding: 0.3em;
 }
+#bat-restart {
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    border: white solid 3px;
+    background-color: black;
+    color: white;
+    font-size: 400%;
+    padding: 0.3em;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    display: none;
+}
 
 /* ****************************************************** */
 
@@ -564,22 +577,16 @@ hr {
 .scream-symbol {color: #3b3b3b;}
 
 /* WHEEL & SPEECH */
-#scream-wheel {
+#scream-wheel, #scream-wheel-frame {
     position: fixed;
-    top: 300px;
-    left: 400px;
-    width: 400px;
-    transform: rotate(11.25deg);
+    bottom: 15vh;
+    left: 25vw;
+    height: 50vh;
 }
-#scream-wheel-frame {
-    position: fixed;
-    top: 300px;
-    left: 400px;
-    width: 400px;
-}
+#scream-wheel {transform: rotate(11.25deg);}
 #scream-host {
     position: fixed;
     bottom: 0.4em;
     right: 0.4em;
-    width: 200px;
+    height: 40vh;
 }

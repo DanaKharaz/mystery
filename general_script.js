@@ -350,9 +350,9 @@ if (sessionStorage.getItem('currGame')) {
     currGame = sessionStorage.getItem('currGame');
     minigame.src = currGame + '.html';
 } else {
-    sessionStorage.setItem('currGame', 'scream'); // FIXME
-    currGame = 'scream'; // FIXME
-    minigame.src = 'scream.html'; // FIXME
+    sessionStorage.setItem('currGame', 'bat'); // FIXME
+    currGame = 'bat'; // FIXME
+    minigame.src = 'bat.html'; // FIXME
 }
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
@@ -412,7 +412,7 @@ function gameWon(n) {
 
     // hide info panel, in case it is open
     sidePanel.classList.remove('opening-side-panel');
-    sidePanel.classList.add('closing-side-panel');
+    if (infoPanelShown || hintPanelShown) sidePanel.classList.add('closing-side-panel');
     infoPanelShown = false;
     hintPanelShown = false;
 }
