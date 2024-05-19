@@ -387,40 +387,180 @@ hr {
 
 /* ****************************************************** */
 
-/* PUZZLE */
+/** GAME 1 - SCREAM **/
 
-/* GRID */
-#puzzle-grid {
-    background-repeat: no-repeat;
+/* CHARACTERS */
+#scream-canvas1 { /* width and height will be set in script for better image quality and scaling */
+    background-image: url(scream_res/doll_reach3.png);
     background-size: contain;
-    background-color: white;
-    height: 75vh;
-    aspect-ratio: 1439 / 1080;
+    background-repeat: no-repeat;
+    height: 15vw;
+    width: 15vw;
     position: fixed;
-    top: 50vh;
-    left: 50vw;
-    transform: translate(-50%, -50%);
-    display: none;
+    bottom: 15vh;
+    left: 13vw;
 }
-.puzzle-grid-start {animation: puzzle-start 5s ease-in-out forwards;}
-@keyframes puzzle-start {
-    0% {background-image: url(puzzle_res/original.png);opacity: 1;}
-    84% {background-image: url(puzzle_res/original.png);opacity: 0;}
-    85% {background-image: none;}
-    100% {opacity: 1;}
-}
-/* puzzle pieces in use */
-.puzzle-piece-use {
-    aspect-ratio: 1 / 1;
+#scream-canvas2 { /* width and height will be set in script for better image quality and scaling */
+    background-image: url(scream_res/golem.png);
     background-size: contain;
     background-repeat: no-repeat;
-    position: absolute;
-    cursor: grab;
+    height: 15vw;
+    width: 15vw;
+    position: fixed;
+    bottom: 2vh;
+    left: 45vw;
 }
+#scream-canvas3 { /* width and height will be set in script for better image quality and scaling */
+    background-image: url(scream_res/grim.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 15vw;
+    width: 15vw;
+    position: fixed;
+    bottom: calc(25vw - 20vh);
+    left: 48vw;
+}
+.scream-score-box {
+    position: fixed;
+    border: white dashed 0.05em;
+    background-color: black;
+    color: white;
+    padding: 0.3em;
+    transform: translate(-50%, 0); /* center vertically */
+}
+#scream-score1 { /* above character, more-or-less centered veritcally */
+    bottom: calc(15vh + 15vw);
+    left: 21.5vw;
+}
+#scream-score2 { /* below character, on the left */
+    bottom: 2vh;
+    left: 47vw;
+}
+#scream-score3 { /* above character, on the left */
+    bottom: calc(37vw - 20vh);
+    left: 51vw;
+}
+#scream-host {
+    position: fixed;
+    bottom: 0.4em;
+    right: 0.4em;
+    height: 40vh;
+}
+
+/* SPEECH BUBBLES */
+#scream-bubble1, #scream-bubble2, #scream-bubble3, #scream-bubble-host, #scream-bubble-host-next {display: none;} /* initially not visibly */
+#scream-bubble1 {
+    bottom: calc(13vh + 15vw);
+    right: 82vw;
+}
+#scream-bubble2 {
+    bottom: 12vw;
+    left: 56vw;
+}
+#scream-bubble3 {
+    bottom: calc(37vw - 20vh);
+    left: 60vw;
+}
+#scream-bubble-host {
+    bottom: 44vh;
+    right: 5vw;
+}
+.speak-top-right, .speak-top-left {
+    background-color: black;
+	border: 0.05em solid white;
+	border-radius: 1em;
+    color: white;
+	min-width: 3vw;
+    max-width: 15vw;
+	padding: 0.5em;
+	position: fixed;
+}
+.speak-top-left:before {
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+    right: 1.05em;
+	bottom: -1.1em;
+	border: 0.55em solid;
+	border-color: white white transparent transparent;
+}
+.speak-top-left:after {
+    content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	right: 1.1em;
+	bottom: -1em;
+	border: 0.5em solid;
+	border-color: black black transparent transparent;
+}
+.speak-top-right:before {
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+    left: 1.05em;
+	bottom: -1.1em;
+	border: 0.55em solid;
+	border-color: white transparent transparent white;
+}
+.speak-top-right:after {
+    content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 1.1em;
+	bottom: -1em;
+	border: 0.5em solid;
+	border-color: black transparent transparent black;
+}
+#scream-bubble-host-next {
+    cursor: pointer;
+    position: fixed;
+    bottom: 45vh;
+    right: calc(4vw - 1em);
+	border: 0.5em solid;
+	border-color: black black black white;
+}
+
+/* PHRASE BOARD */
+#scream-phrase-container {
+    background-color: #959595;
+    width: 88.5vw;
+    position: fixed;
+    top: 3vh;
+    left: 50vw;
+    transform: translate(-50%, 0);
+    text-align: center;
+    padding: 0.7em 1em;
+}
+.scream-letter, .scream-symbol {
+    display: inline-block;
+    font-size: 150%;
+    width: fit-content;
+    margin: 0.3em 0.1em;
+    padding: 0.2em;
+    cursor: default;
+}
+.scream-letter {
+    background-color: #3b3b3b;
+    color: #959595;
+}
+.scream-symbol {color: #3b3b3b;}
+
+/* WHEEL */
+#scream-wheel, #scream-wheel-frame {
+    position: fixed;
+    bottom: 15vh;
+    left: 25vw;
+    height: 25vw;
+}
+#scream-wheel {transform: rotate(11.25deg);}
 
 /* ****************************************************** */
 
-/* FILM */
+/** GAME 2 - FILM **/
 
 /* GRID */
 #film-grid {
@@ -478,7 +618,7 @@ hr {
 
 /* ****************************************************** */
 
-/* BLACKOUT */
+/** GAME 3 - BLACKOUT **/
 #blackout-canvas {
     width: 100%;
     height: 100vh;
@@ -498,7 +638,11 @@ hr {
 
 /* ****************************************************** */
 
-/* BAT */
+/** GAME 4 - MAP **/
+
+/* ****************************************************** */
+
+/** GAME 5 - BAT **/
 #bat-canvas { /* width and height will be set in script for better image quality and scaling */
     position: fixed;
     top: 0;
@@ -530,7 +674,7 @@ hr {
 
 /* ****************************************************** */
 
-/* LABYRINTH */
+/** GAME 6&7 - LABYRINTH **/
 
 /* 2D MAZE */
 #labyrinth-canvas {
@@ -543,50 +687,35 @@ hr {
 
 /* ****************************************************** */
 
-/** SCREAM **/
+/** GAME 8 - PUZZLE **/
 
-#scream-canvas { /* width and height will be set in script for better image quality and scaling */
+/* GRID */
+#puzzle-grid {
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: white;
+    height: 75vh;
+    aspect-ratio: 1439 / 1080;
     position: fixed;
-    top: 0;
-    left: 0;
-}
-
-/* PHRASE BOARD */
-#scream-phrase-container {
-    background-color: #959595;
-    width: 88.5vw;
-    position: fixed;
-    top: 3vh;
+    top: 50vh;
     left: 50vw;
-    transform: translate(-50%, 0);
-    text-align: center;
-    padding: 0.7em 1em;
+    transform: translate(-50%, -50%);
+    display: none;
 }
-.scream-letter, .scream-symbol {
-    display: inline-block;
-    font-size: 150%;
-    width: fit-content;
-    margin: 0.3em 0.1em;
-    padding: 0.2em;
-    cursor: default;
+.puzzle-grid-start {animation: puzzle-start 5s ease-in-out forwards;}
+@keyframes puzzle-start {
+    0% {background-image: url(puzzle_res/original.png);opacity: 1;}
+    84% {background-image: url(puzzle_res/original.png);opacity: 0;}
+    85% {background-image: none;}
+    100% {opacity: 1;}
 }
-.scream-letter {
-    background-color: #3b3b3b;
-    color: #959595;
+/* puzzle pieces in use */
+.puzzle-piece-use {
+    aspect-ratio: 1 / 1;
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    cursor: grab;
 }
-.scream-symbol {color: #3b3b3b;}
 
-/* WHEEL & SPEECH */
-#scream-wheel, #scream-wheel-frame {
-    position: fixed;
-    bottom: 15vh;
-    left: 25vw;
-    height: 50vh;
-}
-#scream-wheel {transform: rotate(11.25deg);}
-#scream-host {
-    position: fixed;
-    bottom: 0.4em;
-    right: 0.4em;
-    height: 40vh;
-}
+/* ****************************************************** */

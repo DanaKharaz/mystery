@@ -1,10 +1,8 @@
 'use strict';
 
-const canvas = document.querySelector('#scream-canvas');
-const ctx = canvas.getContext('2d');
-ctx.canvas.width = window.innerWidth;
-ctx.canvas.height = window.innerHeight;
+const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
 
+/* SETTING THE PHRASE BOARD */
 const board = document.querySelector('#scream-phrase-container');
 
 const symbols = [',', '\'', '.', '!', ':', '\"', '?', '-'];
@@ -31,7 +29,6 @@ const idx = Math.floor(Math.random() * phrases.length);
 const words = phrases[idx].split('\u00A0');
 
 const maxCharsInLine = Math.ceil((phrases[idx].length) / 3); // max 3 lines
-console.log(maxCharsInLine);
 let charsInLine = 0;
 let currLine = document.createElement('div');
 board.appendChild(currLine);
@@ -76,10 +73,11 @@ for (const w of words) {
 
 // convert to array to use indexOf later on
 const letterElems = Array.from(document.querySelectorAll('.scream-letter')); // define here rather than creating elems to keep content editable (?)
+const openLetterElems = [];
 
-// wheel
+/* SETTING THE WHEEL */
 const wheelVals = ['key', 15, 25, 10, 0, 5, 'plus', 20, 'lose', 15, 'x2', 5, 'x4', 20, 0, 10]; // rotate by 22.5*i to get wheelVals[i]
-let currIdx = 0;
+let currWheelIdx = 0;
 
 const wheel = document.querySelector('#scream-wheel');
 const wheelFrame = document.querySelector('#scream-wheel-frame');
@@ -93,101 +91,236 @@ const spinVals = {
 wheelFrame.addEventListener('click', spinWheel);
 
 async function spinWheel(event) {
-    if (event && turn != 0) return; // not our turn, can't do anything
+    if (event && (turn != 0 || !chooseFirst && !started)) return; // not our turn or not started, can't do anything
 
+    if (!started) chooseFirst = false; // must do here and not in main if (!started) due to delay for animation (prevent immediate second spin on click)
+    
     wheelFrame.style.cursor = 'default'; // will change to pointer in play() if needed
 
-    const newIdx = Math.floor(Math.random() * 16); // where to land
+    //FIXME
+    let newIdx;
+    if (!started) newIdx = Math.floor(Math.random() * 16); // where to land
+    else newIdx = 8;
+    //const newIdx = Math.floor(Math.random() * 16); // where to land
     const r = Math.floor(Math.random() * 2 + 1); // full rotations before
 
     wheel.animate({
-        transform: ['rotate(' + (currIdx * 22.5 + 11.25) + 'deg)', 'rotate(' + (newIdx * 22.5 + 11.25 + 360 * r) + 'deg']
+        transform: ['rotate(' + (currWheelIdx * 22.5 + 11.25) + 'deg)', 'rotate(' + (newIdx * 22.5 + 11.25 + 360 * r) + 'deg']
     }, spinVals);
-    currIdx = newIdx;
+    currWheelIdx = newIdx;
     await delay(2000); // wait for animation to end
+
+    if (!started) { // spin to decide who goes first
+        if (['key', 'plus', 'lose', 'x2', 'x4'].includes(wheelVals[currWheelIdx])) { // not a number, so spin again
+            hostSpeechBubble.innerHTML = 'Please spin again, ' + names[turn] + '.';
+
+            if (turn == 0) { // allow user to spin again
+                wheelFrame.style.cursor = 'pointer';
+                chooseFirst = true;
+            } else { // unplayable character spins again
+                await delay(1500);
+                spinWheel();
+            }
+        } else {
+            decideFirst[turn] = wheelVals[currWheelIdx];
+            
+            charSpeechBubbles[turn].style.display = 'initial';
+            charSpeechBubbles[turn].textContent = 'I got ' + wheelVals[currWheelIdx] + '!';
+
+            if (turn == 2) { // everyone got their number
+                await delay(1500);
+
+                turn = 0;
+                let maxSpin = decideFirst[0];
+                charSpeechBubbles[0].style.display = 'none';
+
+                for (let i = 1; i < 3; i++) {
+                    if (decideFirst[i] > maxSpin) {
+                        maxSpin = decideFirst[i];
+                        turn = i;
+                    }
+                    charSpeechBubbles[i].style.display = 'none'; // hide their speech bubbles
+                }
+
+                if (decideFirst.filter((elem) => elem == maxSpin).length != 1) { // multiple max values, so spin again
+                    hostSpeechBubble.innerHTML = 'It appears that we have a tie, so we\'ll try again. Watcher, please spin the wheel.'
+                    turn = 0;
+                    wheelFrame.style.cursor = 'pointer';
+                    chooseFirst = true;
+                } else {
+                    hostSpeechBubble.innerHTML = names[turn] + ' got the heighest number! They will go first.';
+                    if (started) for (let i = 0; i < 3; i++) charSpeechBubbles[i].style.display = 'none'; // hide characters' speech bubbles
+                    started = true;
+                    turn = 0;//FIXME
+                }
+
+            } else {
+                turn++;
+                hostSpeechBubble.innerHTML = 'Now, ' + names[turn] + ', please spin the wheel.';
+                await delay(1500);
+                spinWheel();
+            }
+        }
+        return;
+    }
 
     play();
 }
 
-const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
-
 async function play() {
-    switch(wheelVals[currIdx]) { // TODO
-        case 'key': // choose 1 key out of 10, win the game if chosen correctly
+    switch(wheelVals[currWheelIdx]) {
+        case 'key': // TODO choose 1 key out of 10, win the game if chosen correctly
             //
             break;
         case 'plus': // show the letter at a chosen position
-            letterElems.forEach((elem) => elem.style.cursor = 'pointer');
-            isPlus = true;
+            hostSpeechBubble.style.display = 'initial';
+            hostSpeechBubble.innerHTML = names[turn] + ', which letter you would like to reveal?';
+
+            if (turn == 0) { // the user can click on any of the letters hidden
+                letterElems.filter((item) => !openLetterElems.includes(item)).forEach((elem) => elem.style.cursor = 'pointer');
+                isPlus = true;
+            }
+            else {
+                let pos;
+                do {
+                    pos = Math.floor(Math.random() * letterElems.length);
+                } while (openLetterElems.includes(letterElems[pos]));
+
+                await delay(1500);
+                addLetter(pos, true);
+            } //TODO host and show
             break;
-        case 0: // skip turn 
+        case 0: // TODO skip turn 
             //
             break;
-        case 'lose': // lose all points
-            //
+        case 'lose':
+            // TODO differentiate and randomize the phrases
+            hostSpeechBubble.innerHTML = 'In a tragic turn of events, you lose all of your points, ' + names[turn] + '.';
+            await delay(1500);
+            scores[turn] = 0;
+            charScores[turn].innerHTML = '<i>score:</i><br>0';
+            
+            nextTurn();
             break;
         default: // for +N, *2, *4 : make a guess and get points if it is correct
-            guessing = true;
+            if (turn == 0) guessing = true;
+            else {
+                //TODO
+            }
     }
-    console.log(wheelVals[currIdx], turn);
-
-    // TODO check if won
-
-    //FIXMEturn = (turn + 1) % 3;
-
-    // TODO : animations
-
-    if (turn != 0) { //TODO unplayable character spins the wheel
-        //await delay(2500);
-        //FIXMEspinWheel();
-    } else wheelFrame.style.cursor = 'pointer'; // show that wheel is clickable once again
 }
 
-// game
-//FIXME let turn = Math.floor(Math.random() * 3); // 0, 1, 2 to know who is playing, first player is random
+/* THE GAME */
+const charContexts = [document.querySelector('#scream-canvas1').getContext('2d'),
+                      document.querySelector('#scream-canvas2').getContext('2d'),
+                      document.querySelector('#scream-canvas3').getContext('2d')];
+const charScores = [document.querySelector('#scream-score1'),
+                    document.querySelector('#scream-score2'),
+                    document.querySelector('#scream-score3')];
+const charSpeechBubbles = [document.querySelector('#scream-bubble1'),
+                           document.querySelector('#scream-bubble2'),
+                           document.querySelector('#scream-bubble3')];
+const hostSpeechBubble = document.querySelector('#scream-bubble-host');
+const hostSpeechBubbleNext = document.querySelector('#scream-bubble-host-next');
+
+const names = ['Watcher', 'Golem', 'Reaper'];
+
+const scores = [0, 0, 0]; // 0 - playable character; 1, 2 - unplayable characters
 let turn = 0;
-wheelFrame.style.cursor = 'pointer';
 
-let isPlus = false;
-letterElems.forEach((elem) => elem.addEventListener('click', addLetter));
-function addLetter(event) {
-    if (!isPlus) return;
+// START GAME
+// TODO
+let started = false;
+let chooseFirst = false;
+const decideFirst = [0, 0, 0];
 
-    const idx = letterElems.indexOf(event.target);
-    
-    for (const l in letterDir) {
-        if (letterDir[l].includes(idx)) { // show the letter and remove this spot from directory
-            event.target.textContent = l;
-            if (letterDir[l].length == 1) delete letterDir[l];
-            else letterDir[l] = letterDir[l].filter((i) => i != idx);
-            break;
+const hostStartPhrases = ['Wlecome to <i>The Wheel of Misfortune</i> - your favorite game show airing on any TV chanel here in the Abyss every single night for the rest of forever!',
+                    'I am your host - Scream. Let me briefly explain the rules:',
+                    'You, the Watcher, will be playing against Golem...',
+                    '... and Reaper',
+                    'If you win, you get the prize hidden in this tresure chest!',
+                    'And if you lose... I guess you\'ll have to stay here forever.',
+                    'So, you can win by decoding the phrase seen on the board,',
+                    'when it is your turn, you can guess one letter and see every spot where this letter is present in the phrase.',
+                    'Of course, you don\'t have to wait until all letters have been revealed, you can also guess the whole phrase, once you\'re confident in your guess.',
+                    'However! You can only do that twice in the game.',
+                    'Each turn, you spin our <i>Wheel of Misfortune</i>,',
+                    'if you land on 5, 10, 15, 20, or 25, a correct guess will give you that amount of points,',
+                    'x2 or x4 will double or quadruple your score if you guess the right letter,',
+                    'the \'+\' allows you to reveal the letter in a specific spot, but only there -',
+                    'other places with that same letter will remain hidden.',
+                    'Landing on the key is your ticket to an immediate win!',
+                    'You will be presented with 10 keys, one of which opens the tresure chest,',
+                    'so if you pick the correct one, you\'ll win the game without having to guess the phrase on the board.',
+                    'But of course it isn\'t all rainbows and sunshine here!',
+                    'Landing on 0 means you have to skip your turn: you won\'t make a guess or get any points.',
+                    'And worst of all, you can not only skip your turn, but also lose ALL your points if you land on the skull!',
+                    'This concludes the rules, so let\'s start!',
+                    'To decide who will go first, each player will spin the wheel and whoever gets the highest number will start.',
+                    'Watcher will spin first!'];
+let hostStartPhraseIdx = 0;
+const skippedPhrases = new Array(hostStartPhrases.length).fill(false);
+
+async function startGame() {
+    let pause = 6000;
+
+    //await delay(1000);
+    hostSpeechBubble.style.display = 'initial';
+    hostSpeechBubbleNext.style.display = 'initial';
+
+    hostSpeechBubbleNext.addEventListener('click', function () {
+        if (hostStartPhraseIdx == 23) return; // wait for the user to spin the wheel
+        skippedPhrases[hostStartPhraseIdx] = true;
+    });
+
+    while (hostStartPhraseIdx < 24) {
+        hostSpeechBubble.innerHTML = hostStartPhrases[hostStartPhraseIdx];
+        
+        if (hostStartPhraseIdx == 23) break;
+
+        let t = 0;
+        while (t <= pause && !skippedPhrases[hostStartPhraseIdx]) { // wait unless the user clicks the 'next' arrow
+            await delay(10);
+            t += 10;
         }
+
+        hostStartPhraseIdx++;
     }
 
-    isPlus = false;
-    letterElems.forEach((elem) => elem.style.cursor = 'default');
+    hostSpeechBubbleNext.style.display = 'none';
+    
+    // allow to spin
+    chooseFirst = true;
+    wheelFrame.style.cursor = 'pointer';
 }
 
+startGame();
+
+// MAKE A GUESS
 let guessing = false;
 window.addEventListener('keydown', guessLetter);
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'g', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-function guessLetter(event) {
-    if (!guessing) return;
+function guessLetter(event, unplayableGuess = false) { //TODOconst t = {key: 'A'}; t.key for unplayable chars
+    if (!guessing && !unplayableGuess) return;
 
     // TODO : guess animation
 
     let rightGuess = false;
     if (letters.includes(event.key)) {
         const key = event.key.toUpperCase();
-        console.log(event.key, letterDir[event.key.toUpperCase()]);
         if (letterDir[key]) {
             letterDir[key].forEach((i) => letterElems[i].textContent = key);
             delete letterDir[key];
             rightGuess = true;
         }
 
-        if (rightGuess) { // TODO
-            //
+        if (rightGuess) {
+            // add to score
+            if (wheelVals[currWheelIdx] == 'x2') scores[turn] *= 2;
+            else if (wheelVals[currWheelIdx] == 'x4') scores[turn] *= 4;
+            else scores[turn] += wheelVals[currWheelIdx];
+
+            // TODO : animations
         }
 
         if (Object.keys(letterDir).length == 0) console.log('guessed all'); // TODO
@@ -196,4 +329,63 @@ function guessLetter(event) {
     guessing = false;
 }
 
-//const t = {key: 'A'}; t.key for unplayable chars
+// REVEAL LETTER
+let isPlus = false;
+letterElems.forEach((elem) => elem.addEventListener('click', addLetter));
+async function addLetter(event, unplayablePlus = false) {
+    if (!isPlus && !unplayablePlus) return;
+
+    let idx;
+    if (unplayablePlus) idx = event; // a number was passed, not an event
+    else idx = letterElems.indexOf(event.target);
+
+    charSpeechBubbles[turn].style.display = 'initial';
+    let ending = 'th';
+    if ((idx + 1) % 10 == 1 && (idx + 1) % 100 != 11) ending = 'st';
+    else if ((idx + 1) % 10 == 2 && (idx + 1) % 100 != 12) ending = 'nd';
+    else if ((idx + 1) % 10 == 3 && (idx + 1) % 100 != 13) ending = 'rd';
+    charSpeechBubbles[turn].innerHTML = 'Reveal the ' + (idx + 1) + ending + ' letter!'
+    
+    for (const l in letterDir) {
+        if (letterDir[l].includes(idx)) { // show the letter and remove this spot from directory
+            await delay(1500);
+
+            if (letterDir[l].length == 1) delete letterDir[l];
+            else letterDir[l] = letterDir[l].filter((i) => i != idx);
+            
+            letterElems[idx].textContent = l;
+            letterElems[idx].removeEventListener('click', addLetter);
+            openLetterElems.push(letterElems[idx]);
+
+            hostSpeechBubble.innerHTML = 'The ' + (idx + 1) + ending + ' letter is... ' + l + '!';
+            await delay(2500);
+            charSpeechBubbles[turn].style.display = 'none';
+
+            break;
+        }
+    }
+
+    isPlus = false;
+    letterElems.forEach((elem) => elem.style.cursor = 'default');
+
+    if (Object.keys(letterDir).length == 0) {
+        console.log('guessed all');
+        return;
+    } // TODO
+
+    nextTurn();
+}
+
+async function nextTurn() {
+    turn = (turn + 1) % 3;
+    // TODO differentiate and randomize the phrases
+    hostSpeechBubble.innerHTML = 'Now, ' + names[turn] + ', it\'s your turn, please spin the wheel.';
+
+    if (turn == 0) wheelFrame.style.cursor = 'pointer';
+    else {
+        await delay(1500);
+        spinWheel();
+    }
+}
+
+// 

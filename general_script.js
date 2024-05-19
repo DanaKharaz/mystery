@@ -344,6 +344,8 @@ function puzzleGame() {
 
 /** MINIGAME INSIDE **/
 
+//TODO explain toolbar then give 6 initial pieces
+
 const minigame = document.querySelector('#minigame');
 let currGame;
 if (sessionStorage.getItem('currGame')) {
@@ -363,14 +365,40 @@ let pickingFilms = false;
 
 window.addEventListener('message', async function(event) {
     switch(event.data) { // TODO : organize all messages (game transitions and other)
+        case 'scream-won':
+            gameWon(8); // FIXME number of pieces to be shown
+
+            // transition between minigames - continue to film
+            currGame = 'film';
+            transition('film.html');
+            sessionStorage.setItem('currGame', 'film');
+
+            break;
         case 'film-won':
             gameWon(8); // FIXME number of pieces to be shown
 
-            // transition between minigames
-            // FIXME : for now continue to blackout
+            // transition between minigames - continue to blackout
             currGame = 'blackout';
             transition('blackout.html');
             sessionStorage.setItem('currGame', 'blackout');
+
+            break;
+        case 'blackout-won':
+            gameWon(8); // FIXME number of pieces to be shown
+
+            // transition between minigames - continue to map
+            currGame = 'map';
+            transition('map.html');
+            sessionStorage.setItem('currGame', 'map');
+    
+            break;
+        case 'map-won':
+            gameWon(8); // FIXME number of pieces to be shown
+
+            // transition between minigames - continue to bat
+            currGame = 'bat';
+            transition('bat.html');
+            sessionStorage.setItem('currGame', 'bat');
 
             break;
         case 'bat-won':
