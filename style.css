@@ -427,6 +427,7 @@ hr {
     color: white;
     padding: 0.3em;
     transform: translate(-50%, 0); /* center vertically */
+    cursor: default;
 }
 #scream-score1 { /* above character, more-or-less centered veritcally */
     bottom: calc(15vh + 15vw);
@@ -448,7 +449,10 @@ hr {
 }
 
 /* SPEECH BUBBLES */
-#scream-bubble1, #scream-bubble2, #scream-bubble3, #scream-bubble-host, #scream-bubble-host-next {display: none;} /* initially not visibly */
+#scream-bubble1, #scream-bubble2, #scream-bubble3, #scream-bubble-host, #scream-bubble-host-next {
+    display: none; /* initially not visibly */
+    cursor: default;
+}
 #scream-bubble1 {
     bottom: calc(13vh + 15vw);
     right: 82vw;
@@ -527,7 +531,7 @@ hr {
 /* PHRASE BOARD */
 #scream-phrase-container {
     background-color: #959595;
-    width: 88.5vw;
+    width: 88vw;
     position: fixed;
     top: 3vh;
     left: 50vw;
@@ -548,6 +552,62 @@ hr {
     color: #959595;
 }
 .scream-symbol {color: #3b3b3b;}
+
+/* FULL GUESSES */
+#scream-guess-btn {
+    background-color: #3b3b3b;
+    border: 0.2em solid #959595;
+    color: #959595;
+    width: fit-content;
+    padding: 0.2em 0.3em;
+    position: absolute;
+    left: 0;
+    top: 105%;
+    cursor: default;
+}
+#scream-guess-screen {
+    display: none;
+    background-color: #3b3b3b;
+    border: 0.2em solid #959595;
+    z-index: 1;
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    width: 50vw;
+    height: fit-content;
+    text-align: center;
+    padding: 2em 1em 3em 1em;
+}
+#scream-guess-btn-x {
+    cursor: pointer;
+    position: absolute;
+    top: 0.5em;
+    right: 0.7em;
+    width: fit-content;
+    color: #959595;
+}
+.scream-guess-input {
+    display: inline-block;
+    text-align: center;
+    background-color: #959595;
+    font-size: 150%;
+    padding: 0.2em;
+    font-family: 'Courier New', Courier, monospace;
+    color: #3b3b3b;
+    border: none;
+    outline: 0.07em solid black;
+    text-transform: uppercase;
+}
+#scream-guess-btn-submit {
+    cursor: pointer;
+    position: absolute;
+    bottom: 1em;
+    left: 50%;
+    transform: translateX(-50%);
+    width: fit-content;
+    color: #959595;
+}
 
 /* WHEEL */
 #scream-wheel, #scream-wheel-frame {
@@ -584,9 +644,9 @@ hr {
     aspect-ratio: 1337 / 1080;
     border: 1px solid #3b3b3b;
     transform-style: preserve-3d;
+    cursor: pointer;
 }
-.film-frame:hover {cursor: pointer;}
-.film-frame-done:hover {cursor: auto;}
+.film-frame-done:hover {cursor: default;}
 
 /* SCORE & 'NEXT' BUTTON */
 #film-result-container {
@@ -613,8 +673,8 @@ hr {
     bottom: 6.4em;
     width: fit-content;
     transform: translateX(6em); /* hallfway through image beneath */
+    cursor: pointer;
 }
-#film-next-btn-text:hover {cursor: pointer;}
 
 /* ****************************************************** */
 
@@ -633,8 +693,8 @@ hr {
     top: 50vh;
     left: 50vw;
     transform: translate(-50%, -50%);
+    cursor: pointer;
 }
-#blackout-start-btn:hover {cursor: pointer;}
 
 /* ****************************************************** */
 
