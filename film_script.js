@@ -1,10 +1,5 @@
 'use strict';
 
-window.addEventListener('message', function(event) {
-    //event.data
-    // TODO : listen for 'sound-on', 'sound-off'
-});
-
 /** FILM GRID & SCORE **/
 
 const root = document.querySelector(':root');

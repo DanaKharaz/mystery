@@ -1,10 +1,5 @@
 'use strict';
 
-window.addEventListener('message', function (event) {
-    console.log(event.data);
-    // TODO : listen for 'sound-on', 'sound-off'
-});
-
 document.querySelector('body').style.backgroundImage = 'url(blackout_res/hidden_message_demo.png)';
 
 const canvas = document.querySelector('#blackout-canvas')
@@ -48,7 +43,7 @@ function translateGradient(event) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-
+// TODO analyse mic audio
 
 
 

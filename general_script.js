@@ -49,12 +49,10 @@ soundBtn.addEventListener('click', soundBtnClick);
 function soundBtnClick(event) {
     if (isMuted) {
         soundBtn.src = 'icons/sound_on_btn.svg';
-        // TODO : turn the sound on - send message to iframe
-        minigame.contentWindow.postMessage('sound-on', "*");
+        // TODO : turn the sound on - volume
     } else {
         soundBtn.src = 'icons/sound_off_btn.svg';
-        // TODO : turn the sound off
-        minigame.contentWindow.postMessage('sound-off', "*");
+        // TODO : turn the sound off - volume
     }
     isMuted = !isMuted;
 }

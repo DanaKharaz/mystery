@@ -5,7 +5,7 @@ const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve
 /** TITLE **/
 const title = document.querySelector('#index-title');
 async function titleBlink() {
-    const skip = 0; //FIXME 50
+    const skip = 50;
     for (let i = 0; i < 4; i++) {
         await delay(skip);
         title.textContent = 'M\u00A0STERY';
@@ -25,21 +25,20 @@ async function titleBlink() {
         title.textContent = 'MIS\u00A0ERY';
     }
 
-    //FIXMEawait delay(500);
+    await delay(500);
     for (let i = 0; i < 5; i++) {
-        //FIXMEawait delay(80);
+        await delay(80);
         title.textContent = '';
-        //FIXMEawait delay(80);
+        await delay(80);
         title.textContent = 'MIS\u00A0ERY';
     }
 
-    //FIXMEawait delay(500);
+    await delay(500);
     title.style.display = 'none';
 
     newLine(true);
     showIntroText();
 }
-titleBlink();
 
 /** INTRO SCREEN **/
 const introScreen = document.querySelector('#intro-screen');
@@ -84,7 +83,7 @@ function newLine(starting = false) {
 
 async function showIntroText() {
     while (charI < introText.length) {
-        //FIXMEawait delay(charPauses[charI]);
+        await delay(charPauses[charI]);
 
         if (introText[charI] == '\n') { // line break within text
             newLine();
@@ -117,7 +116,7 @@ async function showIntroText() {
         introLines[lineI].innerHTML += introText[charI]; // innerHTML and not textContent to allow for text effects
 
         if (charStrikes[charI]) { // add strikethrough effect
-            //FIXMEawait delay(charPauses[charI + 1]); // wait before srtriking out the word
+            await delay(charPauses[charI + 1]); // wait before srtriking out the word
 
             // get the part before soon-to-be striked out phrase
             const n = introLines[lineI].innerHTML.length;
@@ -127,7 +126,7 @@ async function showIntroText() {
             const strike = introText.substring(charI + 1 - charStrikes[charI], charI + 1);
             for (let i = 1; i < strike.length + 1; i++) {
                 introLines[lineI].innerHTML = withoutStrike + '<s>' + strike.substring(0, i) + '</s>' + strike.substring(i);
-                //FIXMEawait delay(defaultPause);
+                await delay(defaultPause);
             }
         }
 
@@ -141,12 +140,12 @@ async function showIntroText() {
         opacity: [1, 0],
         easing: ['ease-in', 'ease-out']
     }, 2000);
-    //FIXMEawait delay(2000);
+    await delay(2000);
     introScreen.style.display = 'none';
 
     // show background and start button
-    generalBackground();
-    dotGameBackground();
+    generalBackground(); // stars, graveyard, initial doll
+    dotGameBackground(); // connectable dots
     document.querySelector('#start-screen-container').classList.remove('start-screen-hidden');
     document.querySelector('#start-screen-container').animate({
         opacity: [0, 1],
@@ -154,7 +153,7 @@ async function showIntroText() {
     }, 2000);
 }
 
-/** BACKGROUND **/ //TODO
+/** BACKGROUND **/
 
 const canvas = document.querySelector('#intro-canvas');
 const ctx = canvas.getContext('2d');
@@ -162,7 +161,12 @@ ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
 
 const skyH = window.innerHeight / 2.5; // part of the screen covered with stars
-const imgBg = new Image();
+const hBg = window.innerWidth / 5 * 3; // background height
+const xBg = window.innerHeight - hBg; // X of the background
+let dollX = window.innerWidth * 0.3; // initial X of the doll
+const dollY = window.innerHeight - window.innerWidth * 0.2;
+const dollSize = window.innerWidth * 0.15; // img is square, so both W and H
+
 function generalBackground() {
     ctx.strokeStyle = '#3b3b3b';
     ctx.fillStyle = '#666666';
@@ -202,13 +206,9 @@ function generalBackground() {
         }
     }
     
-    imgBg.src = 'index_res/graveyard.png';
-    imgBg.onload = function() {
-        const hBg = window.innerWidth / 5 * 3;
-        ctx.drawImage(imgBg, 0, window.innerHeight - hBg, window.innerWidth, hBg);
-    }
+    ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+    ctx.drawImage(imgDollWalk, 0, 0, 500, 500, dollX, dollY, dollSize, dollSize); // initial position of the doll
 }
-
 
 /** START BUTTON **/
 
@@ -223,7 +223,7 @@ async function transitionFirstGame(event) {
         opacity: [1, 0],
         easing: ['ease-in', 'ease-out']
     }, 3000);
-    //FIXMEawait delay(3000);
+    await delay(3000);
 
     startBtnContainer.style.display = 'none';
     startBtn.style.display = 'none';
@@ -231,7 +231,7 @@ async function transitionFirstGame(event) {
     dotGame(); // start the game
 }
 
-/** CONNECT DOTS **/ //TODO
+/** CONNECT DOTS **/
 
 const mainContainer = document.querySelector('#start-screen-container');
 
@@ -249,8 +249,7 @@ const dots6 = [['35.19352,45.76624',['40.29321,29.34524']], ['38.61031,38.11671'
 let connectionsN = 0;
 const dotsInitial = {};
 for (const dotsN of [dots1, dots2, dots3, dots4, dots5, dots6]) {
-    //let n = Math.floor(Math.random() * 4 + 4); // choose 4 to 7 connection points for each (it will actually be more points as for now connecitons are one-sided)
-    let n = 1;//FIXME
+    let n = Math.floor(Math.random() * 4 + 4); // choose 4 to 7 connection points for each (it will actually be more points as for now connecitons are one-sided)
 
     dotsN.sort(() => 0.5 - Math.random()); // randomly sort the array
 
@@ -262,7 +261,7 @@ for (const dotsN of [dots1, dots2, dots3, dots4, dots5, dots6]) {
 
 // store values for this window in dictionaries (calculated in setup)
 const dots = {}; // {A:[B,C], ...}
-const dotsBack = {}; // {B:A, C:A, ...}
+const dotsBack = {}; // {B:A, C:A, ...} - connections can be made in either direction
 
 function dotGameBackground() {
     for (const d in dotsInitial) { // set up the dots on canvas
@@ -406,61 +405,124 @@ function dotGame() {
     });
 }
 
-/** DOLL ANIMATION **/ //TODO
+/** DOLL ANIMATION **/
 
-function startAnimation() {
-    const hand1 = new Image();
-    hand1.src = 'index_res/hand1.png';
-    hand1.onload = handAndDoll;
-    const hand2 = new Image();
-    hand2.src = 'index_res/hand2.png';
-    hand2.onload = handAndDoll;
-    const hand3 = new Image();
-    hand3.src = 'index_res/hand3.png';
-    hand3.onload = handAndDoll;
-    const hand4 = new Image();
-    hand4.src = 'index_res/hand4.png';
-    hand4.onload = handAndDoll;
-    const hands = [hand1, hand2, hand3, hand4];
-    const dolls = [new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image(), new Image()];
-    dolls[0].src = 'index_res/doll_land1.png';
-    dolls[1].src = 'index_res/doll_land2.png';
-    dolls[2].src = 'index_res/doll_land3.png';
-    dolls[3].src = 'index_res/doll_land4.png';
-    dolls[4].src = 'index_res/doll_land5.png';
-    dolls[5].src = 'index_res/doll_standing.png';
-    dolls[6].src = 'index_res/doll_walking1.png';
-    dolls[7].src = 'index_res/doll_walking2.png';
-    dolls[8].src = 'index_res/doll_standing.png';
-    dolls[9].src = 'index_res/doll_reach1.png';
-    dolls[10].src = 'index_res/doll_reach2.png';
-    dolls[11].src = 'index_res/doll_reach3.png';
-    dolls[12].src = 'index_res/doll_pull1.png';
-    dolls[13].src = 'index_res/doll_pull2.png';
-    dolls[14].src = 'index_res/doll_pull3.png';
-    dolls[15].src = 'index_res/doll_pull4.png';
-    dolls.forEach((item) => item.onload = handAndDoll);
-    let l = 0;
-    async function handAndDoll() {
-        l++;
-        if (l == 20) {
-            await delay(2000);
-            for (let i = 0; i < 4; i++) {
-                ctx.clearRect(0, window.innerHeight / 3 * 2, window.innerWidth, window.innerHeight / 3);
-                ctx.drawImage(imgBg, 0, window.innerHeight - window.innerWidth / 5 * 3, window.innerWidth, window.innerWidth / 5 * 3);
-                ctx.drawImage(hands[i], 0, window.innerHeight - window.innerWidth / 5 * 3, window.innerWidth, window.innerWidth / 5 * 3);
-                await delay(100);
-            }
-            /*await delay(3000);
-            const handsTemp = [hands[3], hands[3], hands[3], hands[3], hands[3], hands[2], hands[2]]
-            for (let i = 9; i < 16; i++) {
-                ctx.clearRect(0, window.innerHeight / 3 * 2, window.innerWidth, window.innerHeight / 3);
-                ctx.drawImage(imgBg, 0, window.innerHeight - window.innerWidth / 5 * 3, window.innerWidth, window.innerWidth / 5 * 3);
-                ctx.drawImage(handsTemp[i - 9], 0, window.innerHeight - window.innerWidth / 5 * 3, window.innerWidth, window.innerWidth / 5 * 3);
-                ctx.drawImage(dolls[i], window.innerWidth * 0.46, window.innerHeight - window.innerWidth * 0.2, window.innerWidth * 0.15, window.innerWidth * 0.15);
-                await delay(150);
-                if (i == 11) await delay(3000);
-            }*/
+async function startAnimation() {
+    const redrawBgX = window.innerHeight - window.innerWidth / 5 * 3;
+    const redrawBgH = window.innerWidth / 5 * 3;
+
+    const clearX = window.innerHeight / 3 * 2; // no need to clear and redraw the sky
+    const clearH = window.innerHeight / 3;
+
+    const finalDollX = window.innerWidth * 0.46;
+
+    // hand animation
+    await delay(1500);
+    for (let i = 0; i < 4; i++) {
+        ctx.clearRect(0, clearX, window.innerWidth, clearH);
+        ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+        ctx.drawImage(imgHand, i * 2000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg); // same dimensions as background
+        ctx.drawImage(imgDollWalk, 0, 0, 500, 500, dollX, dollY, dollSize, dollSize); // initial position of the doll
+        await delay(170);
+    }
+
+    // doll animation
+    let frame = 0;
+    let i = 0;
+    dollWalk();
+    async function dollWalk() {
+        if (frame % 7 == 0) { // change sprite and move
+            ctx.clearRect(0, clearX, window.innerWidth, clearH);
+            ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgHand, 6000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg); // last hand
+            ctx.drawImage(imgDollWalk, i * 500, 0, 500, 500, dollX, dollY, dollSize, dollSize);
+
+            if (i == 3) i = 0;
+            else i++;
+            frame = 0;
+            dollX += 7; // move right
+        }
+        frame++;
+        if (dollX < finalDollX) window.requestAnimationFrame(dollWalk);
+        else { // reached needed place
+            // doll reaches to the hand
+            await delay(100);
+            ctx.clearRect(0, clearX, window.innerWidth, clearH);
+            ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgHand, 6000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg); // last hand
+            ctx.drawImage(imgDollReach, 0, 0, 500, 500, finalDollX, dollY, dollSize, dollSize); // standing pose (sprite 1)
+            await delay(100)
+            ctx.clearRect(0, clearX, window.innerWidth, clearH);
+            ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgHand, 6000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgDollReach, 500, 0, 500, 500, finalDollX, dollY, dollSize, dollSize); // sprite 2
+            await delay(100)
+            ctx.clearRect(0, clearX, window.innerWidth, clearH);
+            ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgHand, 6000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgDollReach, 1000, 0, 500, 500, finalDollX, dollY, dollSize, dollSize); // sprite 3
+            await delay(100)
+            ctx.clearRect(0, clearX, window.innerWidth, clearH);
+            ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgHand, 6000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgDollReach, 1500, 0, 500, 500, finalDollX, dollY, dollSize, dollSize); // sprite 4
+
+            // doll 'pulled' underground
+            await delay(50)
+            ctx.clearRect(0, clearX, window.innerWidth, clearH);
+            ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgHand, 6000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg); // last hand
+            ctx.drawImage(imgDollPull, 0, 0, 500, 500, finalDollX, dollY, dollSize, dollSize); // sprite 1
+            await delay(50)
+            ctx.clearRect(0, clearX, window.innerWidth, clearH);
+            ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgHand, 6000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg); // last hand
+            ctx.drawImage(imgDollPull, 500, 0, 500, 500, finalDollX, dollY, dollSize, dollSize); // sprite 2
+            await delay(50)
+            ctx.clearRect(0, clearX, window.innerWidth, clearH);
+            ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgHand, 4000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg); // second to last hand
+            ctx.drawImage(imgDollPull, 1000, 0, 500, 500, finalDollX, dollY, dollSize, dollSize); // sprite 3
+            await delay(50)
+            ctx.clearRect(0, clearX, window.innerWidth, clearH);
+            ctx.drawImage(imgBg, 0, xBg, window.innerWidth, hBg);
+            ctx.drawImage(imgHand, 4000, 0, 2000, 1200, 0, xBg, window.innerWidth, hBg); // second last hand
+            ctx.drawImage(imgDollPull, 1500, 0, 500, 500, finalDollX, dollY, dollSize, dollSize); // sprite 4
+
+            // abruptly cut to first official game
+            await delay(25);
+            mainContainer.style.display = 'none';
+            await delay(50); // stay 'in the dark' for another moment
+            window.location.replace('general.html');
         }
     }
+}
+
+/** PUTTING EVERYTHING TOGETHER **/
+
+// load all images
+let loaded = 0;
+
+const imgBg = new Image();
+imgBg.src = 'index_res/graveyard.png';
+
+const imgDollWalk = new Image();
+imgDollWalk.src = 'index_res/doll_walk.png';
+const imgDollReach = new Image();
+imgDollReach.src = 'index_res/doll_reach.png';
+const imgDollPull = new Image();
+imgDollPull.src = 'index_res/doll_pull.png';
+
+const imgHand = new Image();
+imgHand.src = 'index_res/hand.png';
+
+imgBg.onload = loadImages;
+imgDollWalk.onload = loadImages;
+imgDollReach.onload = loadImages;
+imgDollPull.onload = loadImages;
+imgHand.onload = loadImages;
+
+function loadImages() { // start once all images are loaded
+    loaded++;
+    if (loaded == 5) titleBlink();
 }
