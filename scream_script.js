@@ -88,7 +88,6 @@ const spinVals = {
     duration: 2000,
     iterations: 1,
     fill: 'forwards',
-    easing: 'cubic-bezier(0.04, -0.02, 0.02, 1.12)' // starts spinning quickly, slows down by the end surpassing the target slightly and rolling back to it//TODO randomize curve maybe
 }
 wheelFrame.addEventListener('click', spinWheel);
 
@@ -107,6 +106,10 @@ async function spinWheel(event) {
     else newIdx = 4;*/
     const newIdx = Math.floor(Math.random() * 16); // where to land
     const r = Math.floor(Math.random() * 2 + 1); // full rotations before
+
+    // easing for rotation is with cubic-bezier: starts spinning quickly, slows down by the end surpassing the target slightly and rolling back to it
+    // random values are: 0.1<=x1<0.4; 0<=x2<0.1; 0<=y1<1; 1.15<=y2<1.4
+    spinVals.easing = 'cubic-bezier(' + (Math.random() * 0.3 + 0.1) + ', ' + (Math.random() * 0.1) + ', ' + Math.random() + ', ' + (Math.random() * 0.25 + 1.15) + ')';
 
     wheel.animate({
         transform: ['rotate(' + (currWheelIdx * 22.5 + 11.25) + 'deg)', 'rotate(' + (newIdx * 22.5 + 11.25 + 360 * r) + 'deg']

@@ -6,10 +6,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="scream_script.js" defer></script>
-    <title> SCREAM </title>
+    <script src="map_script.js" defer></script>
+    <title> MAP </title>
 </head>
 
-<body></body>
+<body>
+    <img src="" id="map-img">
+    <div id="map-coors-container">
+        <input class="map-place-coors" id="map-lat" type="number" step="0.001" min="-90" max="89.999">
+        <input class="map-place-coors" id="map-long" type="number" step="0.001" min="-180" max="179.999">
+        <input class="map-place-coors" id="map-zoom" type="number" step="0.1" min="0" max="20">
+    </div>
+    <div id="map-names-container">
+        <div id="map-tooltip">AAAAAAAA</div>
+        <input class="map-place-name" type="text">
+        <input class="map-place-name" type="text">
+        <input class="map-place-name" type="text">
+        <input class="map-place-name" type="text">
+        <input class="map-place-name" type="text">
+        <input class="map-place-name" type="text">
+        <input class="map-place-name" type="text">
+    </div>
+</body>
 
 </html>

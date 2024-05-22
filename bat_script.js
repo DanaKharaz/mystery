@@ -18,7 +18,7 @@ const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve
 async function timeGame() { // count down
     await delay(200); // smoother start to timer
 
-    for (let i = 9; i >= 0; i--) {
+    for (let i = 89; i >= 0; i--) {
         let m;
         if (i >= 60) m = '01';
         else m = '00';

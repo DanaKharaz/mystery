@@ -700,6 +700,110 @@ hr {
 
 /** GAME 4 - MAP **/
 
+#map-img {
+    height: 80vh;
+    position: fixed;
+    top: 10vh;
+    right: 52vw;
+}
+
+/* COORDINATES */
+#map-coors-container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    position: fixed;
+    top: 10vh;
+    left: 52vw;
+    width: 80vh; /* for symmetry with map */
+}
+.map-place-coors {
+    text-align: center;
+    width: 10ch;
+    color: #959595;
+    background-color: #3b3b3b;
+    font-size: 120%;
+    padding: 0.2em;
+    font-family: 'Courier New', Courier, monospace;
+    border: none;
+    outline: 0.1em solid #959595;
+}
+/* spin buttons on number inputs modified (based on https://codepen.io/jasonfulps/pen/LNbpEo) DOES NOT WORK FOR FIREFOX */ 
+.map-place-coors::-webkit-outer-spin-button, .map-place-coors::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    background: #3b3b3b url(icons/number_spin.png) no-repeat center center;
+    width: 1ch;
+    border-left: 0.01em solid #959595;
+    opacity: .7;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+.map-place-coors::-webkit-inner-spin-button:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+/* NAMES */
+#map-names-container {
+    position: fixed;
+    top: calc(10vh + 5em);
+    left: 52vw;
+    width: 80vh; /* for symmetry with map */
+}
+.map-place-name {
+    text-align: center;
+    width: 100%;
+    padding: 0.2em;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 110%;
+    border: none;
+    color: #959595;
+    background-color: #3b3b3b;
+    outline: 0.05em solid #959595;
+    margin-bottom: calc(13.33vh - 2.58em);
+    text-transform: uppercase;
+}
+#map-tooltip {
+    display: none;
+    position: absolute;
+    top: 6.5%; /* i * 14.3 + 6.5 */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: black;
+	border: 0.05em solid white;
+    color: white;
+	padding: 0.4em;
+}
+#map-tooltip:before {
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+    left: 50%;
+	top: 0;
+    transform: translate(-50%, -100%);
+	border: 0.8em solid;
+	border-color: transparent transparent white transparent;
+}
+#map-tooltip:after {
+    content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 50%;
+	top: 0;
+    transform: translate(-50%, -95%); /* 95% to avoid thin line below */
+	border: 0.8em solid;
+	border-color: transparent transparent black transparent;
+}
+.map-place-name-correct {
+    color: black;
+    background-color: #666666;
+    outline: none;
+}
+
 /* ****************************************************** */
 
 /** GAME 5 - BAT **/
