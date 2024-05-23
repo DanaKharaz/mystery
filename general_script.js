@@ -342,8 +342,6 @@ function puzzleGame() {
 
 /** MINIGAME INSIDE **/
 
-//TODO explain toolbar then give 6 initial pieces
-
 const minigame = document.querySelector('#minigame');
 let currGame;
 if (sessionStorage.getItem('currGame')) {
@@ -351,8 +349,8 @@ if (sessionStorage.getItem('currGame')) {
     minigame.src = currGame + '.html';
 } else {
     sessionStorage.setItem('currGame', 'bat'); // FIXME
-    currGame = 'scream'; // FIXME
-    minigame.src = 'scream.html'; // FIXME
+    currGame = 'labyrinth'; // FIXME
+    minigame.src = 'labyrinth.html'; // FIXME
 }
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));

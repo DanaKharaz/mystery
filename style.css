@@ -354,37 +354,6 @@ hr {
 .transition-game-in {animation: minigame-fade-in 0.75s ease-in-out forwards;}
 @keyframes minigame-fade-in {from{opacity: 0;} to{opacity: 1;}}
 
-/* SPEECH BUBBLES */
-.speech-bubble {
-    background-color: black;
-	border: 0.1em solid white;
-	border-radius: 1em;
-    color: white;
-	position: relative;
-	width: 15vw;
-	padding: 0.5em;
-}
-.speech-bubble:before {
-	content: ' ';
-	position: absolute;
-	width: 0;
-	height: 0;
-    left: 1.4em;
-	bottom: -2.2em;
-	border: 1.1em solid;
-	border-color: white transparent transparent white;
-}
-.speech-bubble:after {
-    content: ' ';
-	position: absolute;
-	width: 0;
-	height: 0;
-	left: 1.5em;
-	bottom: -2em;
-	border: 1em solid;
-	border-color: black transparent transparent black;
-}
-
 /* ****************************************************** */
 
 /** GAME 1 - SCREAM **/
@@ -900,6 +869,63 @@ hr {
     top: 50vh;
     left: 50vw;
     transform: translate(-50%, -50%);
+}
+#labyrinth-jareth {
+    display: none;
+    position: fixed;
+    height: 70vh;
+    bottom: -5vh;
+    left: -5vh;
+}
+#jareth-bubble {
+    background-color: black;
+	border: 0.05em solid white;
+	border-radius: 1em;
+    color: white;
+	min-width: 3vw;
+    max-width: 15vw;
+	padding: 0.5em;
+	position: fixed;
+    display: none;
+    bottom: 65vh;
+    left: 28vh;
+}
+#jareth-bubble:before {
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+    left: 1.4em;
+	bottom: -2.2em;
+	border: 1.1em solid;
+	border-color: white transparent transparent white;
+}
+#jareth-bubble:after {
+    content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 1.5em;
+	bottom: -2em;
+	border: 1em solid;
+	border-color: black transparent transparent black;
+}
+
+/* 3D MAZE */
+.labyrinth-3d-video {
+    display: none;
+    height: 100vh;
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+}
+#labyrinth-3d-keys {
+    display: none;
+    position: fixed;
+    right: 1vw;
+    bottom: 0;
+    width: 12vw;
 }
 
 /* ****************************************************** */

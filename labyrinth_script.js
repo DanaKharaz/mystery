@@ -1,9 +1,22 @@
 'use strict';
 
+const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
+
 const canvas = document.querySelector('#labyrinth-canvas')
 const ctx = canvas.getContext('2d');
 
-// TODO : to start the game must press Tab, add a simple riddle for it - reason: makes keydown work in iframe
+const jareth = document.querySelector('#labyrinth-jareth');
+const jarethBubble = document.querySelector('#jareth-bubble');
+async function startGame() {
+    await delay(1000);
+    jareth.style.display = 'initial';
+    jarethBubble.style.display = 'initial';
+    await delay(4000);
+    jarethBubble.textContent = 'Well go ahead, find your way out of this maze. But even sTArting might Be trickier than it looks.';
+    await delay(15000); 
+    jarethBubble.style.display = 'none'; 
+}
+startGame();
 
 /* ********************************************************************************************** */
 
@@ -144,8 +157,6 @@ let prevI, prevJ;
 
 let isAnimating = false;
 
-const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
-
 let dx, dy, arcX, arcY, finalArcX, finalArcY, clearX, clearY;
 async function drawCircle(dx, dy, entering = false, exiting = false) {
     isAnimating = true;
@@ -269,8 +280,165 @@ async function moveCircle(event) {
     }
 }
 
-function mazeSolved() {
-    if (items.length === 0) console.log('game won');
-    else console.log('game lost');
-    // TODO : transtion to next part of the game
+async function mazeSolved() {
+    if (items.length === 0) {
+        jarethBubble.textContent = 'Look at you all happy that you solved the maze. You think you beat me already? Did you really think it would be that easy? Well then I have an amazing surprise for you. I don\'t think you\'ll find it \'amazing\' though.';
+        jarethBubble.style.display = 'initial';
+        await delay(15000);
+        canvas.style.display = 'none';
+        jarethBubble.textContent = 'I heard you\'ve been collecting puzzle pieces during this journey. You probably have enough to escape now. And I know a perfect place to sit down and assemble your puzzle, you should go there. But you might just go insane trying, we\'ll see.';
+        await delay(10000);
+        jarethBubble.style.display = 'none';
+        jareth.style.display = 'none';
+        startRelativity();
+    } else {
+        jarethBubble.textContent = 'I knew it, you can\'t beat my maze. But lucky for you, I\'m feeling quite generous today, so I\'ll pretend it never happened. You can try again';
+        jarethBubble.style.display = 'initial';
+        await delay(10000);
+        window.location.reload();
+    }
+}
+
+/** 3D MAZE **/
+
+const videoIntro = document.querySelector('#labyrinth-3d-intro');
+videoIntro.defaultPlaybackRate = 0.2;
+const videoA = document.querySelector('#labyrinth-3d-a');
+videoA.defaultPlaybackRate = 0.2;
+const videoAB = document.querySelector('#labyrinth-3d-a-b');
+videoAB.defaultPlaybackRate = 0.2;
+const videoAC = document.querySelector('#labyrinth-3d-a-c');
+videoAC.defaultPlaybackRate = 0.2;
+const videoBD = document.querySelector('#labyrinth-3d-b-d');
+videoBD.defaultPlaybackRate = 0.2;
+const videoBE = document.querySelector('#labyrinth-3d-b-e');
+videoBE.defaultPlaybackRate = 0.2;
+const videoCD = document.querySelector('#labyrinth-3d-c-d');
+videoCD.defaultPlaybackRate = 0.2;
+const videoCF = document.querySelector('#labyrinth-3d-c-f');
+videoCF.defaultPlaybackRate = 0.2;
+
+const keysImg = document.querySelector('#labyrinth-3d-keys');
+
+let currPlace = 'intro';
+let animating3D = false;
+
+async function startRelativity() {
+    keysImg.style.display = 'initial';
+
+    animating3D = true;
+
+    window.addEventListener('keydown', move3D);
+
+    // in case of restart (no need to reset BD and CD, as they don't lead to restart)
+    videoIntro.currentTime = 0;
+    videoA.currentTime = 0;
+    videoAB.currentTime = 0;
+    videoAC.currentTime = 0;
+    videoBE.currentTime = 0;
+    videoCF.currentTime = 0;
+
+    videoIntro.style.display = 'initial';
+    await delay(1000);
+    videoIntro.currentTime = 0;
+    videoIntro.play();
+    await delay(200);
+    keysImg.src = 'labyrinth_res/up.png';
+    animating3D = false;
+}
+
+async function move3D(event) {
+    if (animating3D) return;
+
+    if (event.key == 'ArrowUp') {
+        if (currPlace == 'intro') {
+            animating3D = true;
+            videoA.style.display = 'initial';
+            videoIntro.style.display = 'none';
+            videoA.play();
+            await delay(3000);
+            currPlace = 'A';
+            keysImg.src = 'labyrinth_res/sides.png';
+            animating3D = false;
+            return;
+        }
+        if (currPlace == 'B') {
+            // lost
+            animating3D = true;
+            videoBE.style.display = 'initial';
+            videoAB.style.display = 'none';
+            videoBE.play();
+            await delay(6000);
+            // restart
+            currPlace = 'intro';
+            animating3D = false;
+            keysImg.src = 'labyrinth_res/none.png';
+            videoBE.style.display = 'none';
+            startRelativity();
+            return;
+        }
+    }
+
+    if (event.key == 'ArrowLeft') {
+        if (currPlace == 'A') {
+            animating3D = true;
+            videoAC.style.display = 'initial';
+            videoA.style.display = 'none';
+            videoAC.play();
+            await delay(3000);
+            currPlace = 'C';
+            keysImg.src = 'labyrinth_res/sides.png';
+            animating3D = false;
+            return;
+        }
+        if (currPlace == 'C') {
+            // lost
+            animating3D = true;
+            videoCF.style.display = 'initial';
+            videoAC.style.display = 'none';
+            videoCF.play();
+            await delay(3000);
+            // restart
+            currPlace = 'intro';
+            animating3D = false;
+            keysImg.src = 'labyrinth_res/none.png';
+            videoCF.style.display = 'none';
+            startRelativity();
+            return;
+        }
+    }
+
+    if (event.key == 'ArrowRight') {
+        if (currPlace == 'A') {
+            animating3D = true;
+            videoAB.style.display = 'initial';
+            videoA.style.display = 'none';
+            videoAB.play();
+            await delay(6000);
+            currPlace = 'B';
+            keysImg.src = 'labyrinth_res/up_right.png';
+            animating3D = false;
+            return;
+        }
+        if (currPlace == 'B') {
+            animating3D = true;
+            videoBD.style.display = 'initial';
+            videoAB.style.display = 'none';
+            videoBD.play();
+            await delay(6000);
+
+            // notify parent
+            window.parent.postMessage('labyrinth-won', '*');
+        }
+        if (currPlace == 'C') {
+            animating3D = true;
+            videoCD.style.display = 'initial';
+            videoAC.style.display = 'none';
+            videoCD.play();
+            await delay(6000);
+
+            // notify parent
+            window.parent.postMessage('labyrinth-won', '*');
+        }
+    }
 }
