@@ -351,8 +351,8 @@ if (sessionStorage.getItem('currGame')) {
     minigame.src = currGame + '.html';
 } else {
     sessionStorage.setItem('currGame', 'bat'); // FIXME
-    currGame = 'blackout'; // FIXME
-    minigame.src = 'blackout.html'; // FIXME
+    currGame = 'scream'; // FIXME
+    minigame.src = 'scream.html'; // FIXME
 }
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));

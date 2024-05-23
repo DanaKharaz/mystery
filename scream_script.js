@@ -723,14 +723,31 @@ async function checkKey(event) {
 /** GAME OVER **/
 async function gameOver(byKey = false) {
     animating = true; // prevent other actions
-    
+
+    const treasureBox = document.querySelector('#scream-treasure-box');
+    const ghostface = document.querySelector('#scream-ghostface');
+    const treasureBase = document.querySelector('#scream-treasure-base');
+    const ghotsfaceBubble = document.querySelector('#scream-bubble-ghostface');
+
     if (byKey) { // the character who guessed the key wins regardless of points
         await delay(2000);
         hostSpeechBubble.innerHTML = names[turn] + ', since you managed to guess the right key, you are automatically the winner!';
 
         if (turn == 0) {
-            // TODO animation
+            await delay(3500);
+            hostSpeechBubble.innerHTML = 'As promised, this treasure is yours!';
+            await delay(1500);
+            treasureBox.classList.add('scream-treasure-won');
+            await delay(2500);
+            treasureBox.src = 'scream_res/treasure_open.png';
+            treasureBase.style.display = 'initial';
+            await delay(700);
+            ghostface.style.display = 'initial';
+            await delay(600);
+            ghotsfaceBubble.style.display = 'initial';
 
+            await delay(1000);
+            
             // notify parent
             window.parent.postMessage('scream-won', '*');
         } else {
@@ -761,7 +778,19 @@ async function gameOver(byKey = false) {
         window.location.reload();
     } else {
         if (idxMax == 0) { // player won
-            // TODO animation
+            await delay(3500);
+            hostSpeechBubble.innerHTML = 'As promised, this treasure is yours!';
+            await delay(1500);
+            treasureBox.classList.add('scream-treasure-won');
+            await delay(2500);
+            treasureBox.src = 'scream_res/treasure_open.png';
+            treasureBase.style.display = 'initial';
+            await delay(700);
+            ghostface.style.display = 'initial';
+            await delay(600);
+            ghotsfaceBubble.style.display = 'initial';
+
+            await delay(1000);
 
             // notify parent
             window.parent.postMessage('scream-won', '*');

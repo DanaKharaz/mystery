@@ -125,7 +125,7 @@ function sizeFromVolume() {
         }
         //console.log(volume);
         //sumVol+=volume;
-        gradientSize = volume * 8000;
+        gradientSize = volume * 5000;
         //frames++;
         
         const gradient = ctx.createRadialGradient(x, y, 1, x, y, gradientSize); // x, y - center of each circle

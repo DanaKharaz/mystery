@@ -438,7 +438,7 @@ hr {
 }
 
 /* SPEECH BUBBLES */
-#scream-bubble1, #scream-bubble2, #scream-bubble3, #scream-bubble-host, #scream-bubble-host-next {
+#scream-bubble1, #scream-bubble2, #scream-bubble3, #scream-bubble-host, #scream-bubble-host-next, #scream-bubble-ghostface {
     display: none; /* initially not visibly */
     cursor: default;
 }
@@ -614,7 +614,7 @@ hr {
     grid-template-columns: auto auto auto auto auto;
     background-color: #959595;
     border: 0.2em solid #3b3b3b;
-    z-index: 1;
+    z-index: 4;
     position: fixed;
     top: 50vh;
     left: 50vw;
@@ -632,19 +632,45 @@ hr {
 .scream-key:hover {filter: drop-shadow(0 0 1em black);}
 
 /* TREASURE */
-#scream-treasure {
+.scream-treasure {
     position: fixed;
     bottom: 5vh;
     right: 35vh;
     width: 24vh;
     z-index: 2;
-    animation: move-treasure 2s ease-in-out forwards;
 }
+#scream-treasure-base {
+    display: none;
+    width: 30vw;
+    bottom: -2vw;
+    right: 35vw;
+}
+.scream-treasure-won {animation: move-treasure 2s ease-in-out forwards;}
 @keyframes move-treasure {
     from {width: 24vh; bottom: 5vh; right: 35vh;}
-    to {width: 30vw; bottom: 0; right: 35vw;}
+    to {width: 30vw; bottom: -2vw; right: 35vw;}
 }
-#scream-ghostface {display: none;}
+#scream-ghostface {
+    display: none;
+    position: fixed;
+    z-index: 2;
+    width: 30vw;
+    bottom: -10vw;
+    right: 35.5vw;
+    overflow: hidden;
+    animation: reveal-ghostface 0.5s ease-in forwards;
+}
+@keyframes reveal-ghostface {
+    from {bottom: -10vw;}
+    to {bottom: 18vw;}
+}
+#scream-bubble-ghostface {
+    display: none;
+    font-size: 200%;
+    top: 1vw;
+    left: 22vw;
+    z-index: 3;
+}
 
 /* ****************************************************** */
 
