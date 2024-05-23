@@ -4,153 +4,138 @@ document.querySelector('body').style.backgroundImage = 'url(blackout_res/hidden_
 
 const canvas = document.querySelector('#blackout-canvas')
 const ctx = canvas.getContext('2d');
+ctx.canvas.width = window.innerWidth;
+ctx.canvas.height = window.innerHeight;
 
-const scaleX = canvas.width / window.innerWidth;
-const scaleY = canvas.height / window.innerHeight;
+/*const scaleX = canvas.width / window.innerWidth;
+const scaleY = canvas.height / window.innerHeight;*/
 
 ctx.fillStyle = 'black';
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
 const startBtn = document.querySelector('#blackout-start-btn');
 startBtn.addEventListener('click', revealHiddenMessage);
+let started = false;
 
-function revealHiddenMessage(event) {
-    startBtn.style.display = 'none'; // hide btn
+//const defSize = window.innerHeight / 12;
+let gradientSize = 0;
 
-    // show gradient right away
-    const x = event.clientX * scaleX;
-    const y = event.clientY * scaleY;
-    const gradient = ctx.createRadialGradient(x, y, 1, x, y, 13); // x, y - center of each circle
-    gradient.addColorStop(0, '#00000000');
-    gradient.addColorStop(1, 'black');
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // clear first
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+let x = window.innerWidth / 2;
+let y = window.innerHeight / 2;
 
-    window.addEventListener('mousemove', translateGradient);
+async function revealHiddenMessage(event) {
+    if (microphone.initialized) {
+        started = true;
+
+        startBtn.style.display = 'none'; // hide btn
+
+        // show gradient right away
+        //const x = event.clientX * scaleX;
+        //const y = event.clientY * scaleY;
+        x = event.clientX;
+        y = event.clientY;
+
+        window.addEventListener('mousemove', translateGradient);
+    } else {
+        startBtn.animate({
+            color: ['white', 'grey', 'white'],
+            easing: ['ease-in', 'ease-out']
+        }, 1000);
+    }
 }
 
 // move gradient based on mouse
 function translateGradient(event) {
-    console.log(event, event.clientX, event.clientY);
-    const x = event.clientX * scaleX;
-    const y = event.clientY * scaleY;
-    const gradient = ctx.createRadialGradient(x, y, 1, x, y, 13); // x, y - center of each circle
+    //const x = event.clientX * scaleX;
+    //const y = event.clientY * scaleY;
+    /*const gradient = ctx.createRadialGradient(event.clientX, event.clientY, 1, event.clientX, event.clientY, gradientSize); // x, y - center of each circle
     gradient.addColorStop(0, '#00000000');
     gradient.addColorStop(1, 'black');
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // clear first
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight); // clear first
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);*/
+    x = event.clientX;
+    y = event.clientY;
 }
 
 // TODO analyse mic audio
 
-
-
-
-
-
-const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
-
-
-
-// start/stop using mic based on https://jsfiddle.net/sasivarunan/2xLbv7n9/ and https://medium.com/hackernoon/creative-coding-using-the-microphone-to-make-sound-reactive-art-part1-164fd3d972f3
-
-async function audio() {
-    navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false
-    })
-    .then(stream => {
-        window.localStream = stream;
-        console.log('start');
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-
-    await delay(5000);
-
-    localStream.getAudioTracks()[0].stop();
-    console.log('stop');
-}
-//audio();
+// based on parts of this tutorial - https://www.youtube.com/watch?v=qNEb9of714U&list=WL&index=1&t=2232s
+//     - specifically, taking volume from the microphone in real time was adapted from the video
+//     - the rest (animation, volume analysis, etc) was NOT from this tutorial
 
 class Microphone {
-    constructor(_fft) {
-        var FFT_SIZE = _fft || 1024;
-        this.spectrum = [];
-        this.volume = this.vol = 0;
-        this.peak_volume = 0;
-        var self = this;
-        var audioContext = new AudioContext();
-        var SAMPLE_RATE = audioContext.sampleRate;
-
-        // this is just a browser check to see
-        // if it supports AudioContext and getUserMedia
-        window.AudioContext = window.AudioContext || window.webkitAudioContext;
-        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
-        // now just wait until the microphone is fired up
-        window.addEventListener('load', init, false);
-        function init() {
-            try {
-                startMic(new AudioContext());
-            }
-            catch (e) {
-                console.error(e);
-                alert('Web Audio API is not supported in this browser');
-            }
-        }
-        function startMic(context) {
-            navigator.getUserMedia({ audio: true }, processSound, error);
-            function processSound(stream) {
-                window.localStream = stream;
-
-                // analyser extracts frequency, waveform, etc.
-                var analyser = context.createAnalyser();
-                analyser.smoothingTimeConstant = 0.2;
-                analyser.fftSize = FFT_SIZE;
-                var node = context.createScriptProcessor(FFT_SIZE * 2, 1, 1);
-                node.onaudioprocess = function () {
-                    // bitcount returns array which is half the FFT_SIZE
-                    self.spectrum = new Uint8Array(analyser.frequencyBinCount);
-                    // getByteFrequencyData returns amplitude for each bin
-                    analyser.getByteFrequencyData(self.spectrum);
-                    // getByteTimeDomainData gets volumes over the sample time
-                    // analyser.getByteTimeDomainData(self.spectrum);
-                    self.vol = self.getRMS(self.spectrum);
-                    // get peak - a hack when our volumes are low
-                    if (self.vol > self.peak_volume) self.peak_volume = self.vol;
-                    self.volume = self.vol;
-                };
-                var input = context.createMediaStreamSource(stream);
-                input.connect(analyser);
-                analyser.connect(node);
-                node.connect(context.destination);
-
-                console.log('mic started', self.vol, self.volume);
-                volRecord();
-                //stopAudio();
-            }
-            function error() {
-                console.log(arguments);
-            }
-        }
-        //////// SOUND UTILITIES  ////////
-        ///// ..... we going to put more stuff here....
-        return this;
+    constructor() {
+        this.initialized = false;
+        navigator.mediaDevices.getUserMedia({audio:true})
+        .then(function(stream) {
+            this.audioContext = new AudioContext();
+            this.microphone = this.audioContext.createMediaStreamSource(stream);
+            this.analyser = this.audioContext.createAnalyser();
+            this.analyser.fftSize = 512;
+            const bufferLength = this.analyser.frequencyBinCount;
+            this.dataArray = new Uint8Array(bufferLength); // half of fftSize
+            this.microphone.connect(this.analyser);
+            this.initialized = true;
+        }.bind(this)).catch(function(error) { // no permission to use mic
+            console.log(error);
+            //TODO
+        });
     }
-};
-var Mic = new Microphone();
-async function volRecord() {
-    for (let i = 0; i < 300; i++) {
-        await delay(1000);
-        console.log(Mic.vol, Mic.volume);
+    getVolume() {
+        this.analyser.getByteTimeDomainData(this.dataArray);
+        let norSamp = Array.from(this.dataArray).map(elem => elem / 128 - 1); // convert to -1 <= x <= 1, for easier use later
+
+        // rms of samples
+        let sum = 0;
+        for (let i = 0; i < norSamp.length; i++) sum += (norSamp[i])**2;
+        let volume = Math.sqrt(sum / norSamp.length);
+        return volume;
     }
 }
 
-async function stopAudio() {
-    await delay(5000);
-    localStream.getAudioTracks()[0].stop();
-    console.log('stop');
+const microphone = new Microphone();
+//let frames = 0;
+//let sumVol = 0;
+let peaked = false;
+let firstPeak;
+let peakCount = 0; // want 3 pairs consequitively
+function sizeFromVolume() {
+    if (microphone.initialized && started) {
+        let volume = microphone.getVolume();
+        if (volume > 0.05) { // sound peak
+            // snaps - 2 peaks about 1s apart
+            if (peaked) { // this is the second peak
+                const diff = Date.now() - firstPeak;
+                console.log(diff);
+                if (diff >= 400 && diff <= 2000) {
+                    // two snaps with a more-or-less correct interval
+                    console.log('the addams family!');
+                    peakCount++;
+                    firstPeak = Date.now();
+                    if (peakCount == 3) return;
+                } else if (diff > 30) { // different shorter is most likely unintentional, so ignore
+                    peakCount = 0;
+                    peaked = false; // wrong timing
+                }
+            } else { // this is the first peak
+                firstPeak = Date.now();
+                peaked = true;
+            }
+        }
+        //console.log(volume);
+        //sumVol+=volume;
+        gradientSize = volume * 8000;
+        //frames++;
+        
+        const gradient = ctx.createRadialGradient(x, y, 1, x, y, gradientSize); // x, y - center of each circle
+        gradient.addColorStop(0, '#00000000');
+        gradient.addColorStop(1, 'black');
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight); // clear first
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    }
+    window.requestAnimationFrame(sizeFromVolume);
+    //else console.log(sumVol/frames); // mic 0.005417315911953746; earbuds 0.005447278840784548
 }
+sizeFromVolume();

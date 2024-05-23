@@ -100,10 +100,6 @@ async function spinWheel(event) {
         wheelFrame.style.cursor = 'default';
     }
 
-    //FIXME
-    /*let newIdx;
-    if (!started) newIdx = Math.floor(Math.random() * 16); // where to land
-    else newIdx = 4;*/
     const newIdx = Math.floor(Math.random() * 16); // where to land
     const r = Math.floor(Math.random() * 2 + 1); // full rotations before
 
@@ -135,6 +131,7 @@ async function spinWheel(event) {
             
             charSpeechBubbles[turn].style.display = 'initial';
             charSpeechBubbles[turn].textContent = 'I got ' + wheelVals[currWheelIdx] + '!';
+            animateChar();
 
             if (turn == 2) { // everyone got their number
                 await delay(2000);
@@ -191,9 +188,9 @@ let animating = false;
 
 async function play() {
     switch(wheelVals[currWheelIdx]) {
-        case 'key': // TODO choose 1 key out of 10, win the game if chosen correctly
-            console.log('key');
-            nextTurn();
+        case 'key': // choose 1 key out of 10, win the game if chosen correctly
+            guessKey();
+
             break;
 
         case 'plus': // show the letter at a chosen position
@@ -249,6 +246,46 @@ async function play() {
 const charContexts = [document.querySelector('#scream-canvas1').getContext('2d'),
                       document.querySelector('#scream-canvas2').getContext('2d'),
                       document.querySelector('#scream-canvas3').getContext('2d')];
+// size of canvas done here for better image quality
+const ctxSize = window.innerWidth * 0.15;
+for (const ctx of charContexts) ctx.canvas.width = ctx.canvas.height = ctxSize;
+// randomly choose the opposing characters' images
+const randGolem = Math.floor(Math.random() * 3) + 1;
+const randReaper = Math.floor(Math.random() * 3) + 1;
+// load needed images and start the game
+let loaded = 0;
+const charImgs = [new Image(), new Image(), new Image()];
+charImgs[0].src = 'scream_res/doll_point.png';
+charImgs[1].src = 'scream_res/golem' + randGolem + '.png';
+charImgs[2].src = 'scream_res/reaper' + randReaper + '.png';
+charImgs[0].onload = charImgs[1].onload = charImgs[2].onload = imgLoad;
+async function imgLoad() {
+    loaded++;
+    if (loaded == 3) {
+        // display the characters
+        charContexts[0].drawImage(charImgs[0], 0, 0, 500, 500, 0, 0, ctxSize, ctxSize);
+        charContexts[1].drawImage(charImgs[1], 0, 0, 900, 900, 0, 0, ctxSize, ctxSize);
+        charContexts[2].drawImage(charImgs[2], 0, 0, 900, 900, 0, 0, ctxSize, ctxSize);
+        startGame();
+    }
+}
+async function animateChar() {
+    if (turn == 0) { // different size of image, so separately
+        for (let i = 0; i < 5; i++) {
+            charContexts[0].clearRect(0, 0, ctxSize, ctxSize);
+            charContexts[0].drawImage(charImgs[0], i * 500, 0, 500, 500, 0, 0, ctxSize, ctxSize);
+            await delay(150);
+        }
+    } else {
+        for (let i = 0; i < 5; i++) {
+            charContexts[turn].clearRect(0, 0, ctxSize, ctxSize);
+            charContexts[turn].drawImage(charImgs[turn], i * 900, 0, 900, 900, 0, 0, ctxSize, ctxSize);
+            await delay(150);
+        }
+    }
+}
+
+
 const charScores = [document.querySelector('#scream-score1'),
                     document.querySelector('#scream-score2'),
                     document.querySelector('#scream-score3')];
@@ -264,7 +301,6 @@ const scores = [0, 0, 0]; // 0 - playable character; 1, 2 - unplayable character
 let turn = 0;
 
 // START GAME
-// TODO
 let started = false;
 let chooseFirst = false;
 const decideFirst = [0, 0, 0];
@@ -304,14 +340,27 @@ async function startGame() {
     hostSpeechBubbleNext.style.display = 'initial';
 
     hostSpeechBubbleNext.addEventListener('click', function () {
-        if (hostStartPhraseIdx == 23) return; // wait for the user to spin the wheel
+        if (hostStartPhraseIdx == 23 || hostStartPhraseIdx == 2 || hostStartPhraseIdx == 3) return; // wait for the user to spin the wheel or wait for animation to end
         skippedPhrases[hostStartPhraseIdx] = true;
     });
 
     while (hostStartPhraseIdx < 24) {
         hostSpeechBubble.innerHTML = hostStartPhrases[hostStartPhraseIdx];
         
-        if (hostStartPhraseIdx == 23) break;
+        if (hostStartPhraseIdx == 23) {
+            turn = 0;
+            break;
+        }
+
+        if (hostStartPhraseIdx == 2 || hostStartPhraseIdx == 3) {
+            turn = hostStartPhraseIdx - 1;
+            animateChar();
+            await delay(150);
+            animateChar();
+            await delay(1500);
+            hostStartPhraseIdx++;
+            continue;
+        }
 
         let t = 0;
         while (t <= pause && !skippedPhrases[hostStartPhraseIdx]) { // wait unless the user clicks the 'next' arrow
@@ -328,8 +377,6 @@ async function startGame() {
     chooseFirst = true;
     wheelFrame.style.cursor = 'pointer';
 }
-
-startGame();
 
 // MAKE A GUESS
 let guessing = false;
@@ -348,6 +395,7 @@ async function guessLetter(event, unplayableGuess = false) {
     // TODO differentiate and randomize the phrases
     charSpeechBubbles[turn].style.display = 'initial';
     charSpeechBubbles[turn].innerHTML = 'Maybe \'' + guess + '\'?';
+    animateChar();
 
     if (!lettersNotTried.includes(guess)) { // already guessed
         await delay(500);
@@ -390,8 +438,8 @@ async function guessLetter(event, unplayableGuess = false) {
 
     lettersNotTried = lettersNotTried.filter((l) => l != guess);
 
-    if (Object.keys(letterDir).length == 0) { // TODO
-        console.log('guessed all');
+    if (Object.keys(letterDir).length == 0) {
+        gameOver();
         return;
     }
 
@@ -414,6 +462,7 @@ async function addLetter(event, unplayablePlus = false) {
     else if ((idx + 1) % 10 == 2 && (idx + 1) % 100 != 12) ending = 'nd';
     else if ((idx + 1) % 10 == 3 && (idx + 1) % 100 != 13) ending = 'rd';
     charSpeechBubbles[turn].innerHTML = 'Reveal the ' + (idx + 1) + ending + ' letter!'
+    animateChar();
     
     for (const l in letterDir) {
         if (letterDir[l].includes(idx)) { // show the letter and remove this spot from directory
@@ -437,9 +486,9 @@ async function addLetter(event, unplayablePlus = false) {
     letterElems.forEach((elem) => elem.style.cursor = 'default');
 
     if (Object.keys(letterDir).length == 0) {
-        console.log('guessed all');
+        gameOver();
         return;
-    } // TODO
+    }
 
     nextTurn();
 }
@@ -603,12 +652,13 @@ guessScreenBtnSubmit.addEventListener('click', async function (event) {
     }
     charSpeechBubbles[turn].style.display = 'initial';
     charSpeechBubbles[turn].innerHTML = guessedPhrase.substring(0, guessedPhrase.length - 1); // substring to remove the extra space added in the end
+    animateChar();
 
     await delay(1500);
 
     if (correctGuess) {
         hostSpeechBubble.innerHTML = 'Congradulations! This is the right answer.';
-        //TODO end game
+        gameOver();
     } else {
         fullGuesses++;
         if (fullGuesses == 2) {
@@ -622,3 +672,106 @@ guessScreenBtnSubmit.addEventListener('click', async function (event) {
         nextTurn();
     }
 });
+
+/** KEY GUESS **/
+
+const guessKeyContainer = document.querySelector('#scream-guess-keys');
+const keyElems = Array.from(document.querySelectorAll('.scream-key'));
+
+for (let i = 0; i < 10; i++) keyElems[i].addEventListener('click', checkKey);
+let rightKeyIdx;
+
+async function guessKey() {
+    guessKeyContainer.style.display = 'grid';
+
+    rightKeyIdx = Math.floor(Math.random() * 10);
+    console.log(rightKeyIdx);
+
+    hostSpeechBubble.innerHTML = 'You have a chance to win the game right here, right now! Go ahead, try to find the correct key.';
+
+    if (turn != 0) { // unplayable character makes a guess
+        await delay(2000);
+        const guessedKey = Math.floor(Math.random() * 10);
+        keyElems[guessedKey].style.filter = 'drop-shadow(0 0 1em black)';
+        checkKey({target: keyElems[guessedKey]});
+    }
+}
+
+async function checkKey(event) {
+    const i = keyElems.indexOf(event.target);
+
+    if (i == rightKeyIdx) {
+        hostSpeechBubble.innerHTML = 'How did you do that, are you a mind-reader?! You have won the game!';
+        keyElems[i].style.filter = 'drop-shadow(0 0 1em black)';
+        await delay(2500);
+        guessKeyContainer.style.display = 'none';
+        gameOver(true);
+    } else {
+        keyElems[i].animate({
+            transform: ['rotate(0)', 'rotate(-8deg)', 'rotate(0)', 'rotate(8deg)', 'rotate(0)', 'rotate(-8deg)',
+                        'rotate(0)', 'rotate(8deg)', 'rotate(0)', 'rotate(-8deg)', 'rotate(0)']}, 1000);
+        keyElems.forEach((elem) => elem.removeEventListener('click', checkKey));
+
+        hostSpeechBubble.innerHTML = 'Unfortunately that\'s not the right key. So the game is still on!';
+        await delay(2500);
+        guessKeyContainer.style.display = 'none';
+
+        nextTurn();
+    }
+}
+
+/** GAME OVER **/
+async function gameOver(byKey = false) {
+    animating = true; // prevent other actions
+    
+    if (byKey) { // the character who guessed the key wins regardless of points
+        await delay(2000);
+        hostSpeechBubble.innerHTML = names[turn] + ', since you managed to guess the right key, you are automatically the winner!';
+
+        if (turn == 0) {
+            // TODO animation
+
+            // notify parent
+            window.parent.postMessage('scream-won', '*');
+        } else {
+            await delay(2500);
+            hostSpeechBubble.innerHTML = 'Unfortunately for you, Watcher, I cannot simply let you go, you have to actually win the game.';
+            await delay(2500);
+            hostSpeechBubble.innerHTML = 'I\'ll let you try again. See you in 3 ... 2 ... 1';
+            await delay(1500);
+            window.location.reload();
+        }
+    }
+
+    // the winner is NOT the player who completed or guessed the phrase, but the one with the most points
+    let idxMax = 0;
+    let max = charScores[idxMax];
+    for (let i = 1; i < charScores.length; i++) {
+        if (charScores[i] > max) {
+            idxMax = i;
+            max = charScores[i];
+        }
+    }
+    if (charScores.filter((s) => s == max).length > 1) { // tie
+        await delay(2500);
+        hostSpeechBubble.innerHTML = 'A tie?! Well where is the fun in that? We have to fix this immediately.';
+        await delay(2500);
+        hostSpeechBubble.innerHTML = 'We\'ll play again. Ready, set, go!';
+        await delay(1500);
+        window.location.reload();
+    } else {
+        if (idxMax == 0) { // player won
+            // TODO animation
+
+            // notify parent
+            window.parent.postMessage('scream-won', '*');
+        } else { // player lost
+            await delay(2500);
+            hostSpeechBubble.innerHTML = 'Unfortunately for you, Watcher, I cannot simply let you go, you have to actually win the game.';
+            await delay(2500);
+            hostSpeechBubble.innerHTML = 'I\'ll let you try again. See you in 3 ... 2 ... 1';
+            await delay(1500);
+            window.location.reload();
+        }
+    }
+}

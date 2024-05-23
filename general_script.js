@@ -351,8 +351,8 @@ if (sessionStorage.getItem('currGame')) {
     minigame.src = currGame + '.html';
 } else {
     sessionStorage.setItem('currGame', 'bat'); // FIXME
-    currGame = 'map'; // FIXME
-    minigame.src = 'map.html'; // FIXME
+    currGame = 'blackout'; // FIXME
+    minigame.src = 'blackout.html'; // FIXME
 }
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
@@ -364,7 +364,7 @@ let pickingFilms = false;
 window.addEventListener('message', async function(event) {
     switch(event.data) { // TODO : organize all messages (game transitions and other)
         case 'scream-won':
-            gameWon(8); // FIXME number of pieces to be shown
+            gameWon(8);
 
             // transition between minigames - continue to film
             currGame = 'film';
@@ -373,7 +373,7 @@ window.addEventListener('message', async function(event) {
 
             break;
         case 'film-won':
-            gameWon(8); // FIXME number of pieces to be shown
+            gameWon(8);
 
             // transition between minigames - continue to blackout
             currGame = 'blackout';
@@ -382,7 +382,7 @@ window.addEventListener('message', async function(event) {
 
             break;
         case 'blackout-won':
-            gameWon(8); // FIXME number of pieces to be shown
+            gameWon(8);
 
             // transition between minigames - continue to map
             currGame = 'map';
@@ -391,7 +391,7 @@ window.addEventListener('message', async function(event) {
     
             break;
         case 'map-won':
-            gameWon(8); // FIXME number of pieces to be shown
+            gameWon(8);
 
             // transition between minigames - continue to bat
             currGame = 'bat';
@@ -400,17 +400,16 @@ window.addEventListener('message', async function(event) {
 
             break;
         case 'bat-won':
-            gameWon(8); // FIXME number of pieces to be shown
+            gameWon(8);
 
             // transition between minigames
-            // FIXME : for now continue to labyrinth
             currGame = 'labyrinth';
             transition('labyrinth.html');
             sessionStorage.setItem('currGame', 'labyrinth');
 
             break;
         case 'labyrinth-won':
-            gameWon(16); // FIXME number of pieces to be shown
+            gameWon(8);
 
             // continue to puzzle game : hide iframe and reveal puzzle grid below
             currGame = 'puzzle';

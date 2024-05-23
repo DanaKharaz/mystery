@@ -391,19 +391,11 @@ hr {
 
 /* CHARACTERS */
 #scream-canvas1 { /* width and height will be set in script for better image quality and scaling */
-    background-image: url(scream_res/doll_reach3.png);
-    background-size: contain;
-    background-repeat: no-repeat;
-    height: 15vw;
-    width: 15vw;
     position: fixed;
     bottom: 15vh;
     left: 13vw;
 }
 #scream-canvas2 { /* width and height will be set in script for better image quality and scaling */
-    background-image: url(scream_res/golem.png);
-    background-size: contain;
-    background-repeat: no-repeat;
     height: 15vw;
     width: 15vw;
     position: fixed;
@@ -411,9 +403,6 @@ hr {
     left: 45vw;
 }
 #scream-canvas3 { /* width and height will be set in script for better image quality and scaling */
-    background-image: url(scream_res/grim.png);
-    background-size: contain;
-    background-repeat: no-repeat;
     height: 15vw;
     width: 15vw;
     position: fixed;
@@ -618,6 +607,45 @@ hr {
 }
 #scream-wheel {transform: rotate(11.25deg);}
 
+/* GUESS RIGHT KEY */
+#scream-guess-keys {
+    display: none;
+    gap: 1vw 1vw;
+    grid-template-columns: auto auto auto auto auto;
+    background-color: #959595;
+    border: 0.2em solid #3b3b3b;
+    z-index: 1;
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    width: fit-content;
+    height: fit-content;
+    text-align: center;
+    padding: 0 2vw;
+}
+.scream-key {
+    height: 30vh;
+    margin: 2vw;
+    cursor: pointer;
+}
+.scream-key:hover {filter: drop-shadow(0 0 1em black);}
+
+/* TREASURE */
+#scream-treasure {
+    position: fixed;
+    bottom: 5vh;
+    right: 35vh;
+    width: 24vh;
+    z-index: 2;
+    animation: move-treasure 2s ease-in-out forwards;
+}
+@keyframes move-treasure {
+    from {width: 24vh; bottom: 5vh; right: 35vh;}
+    to {width: 30vw; bottom: 0; right: 35vw;}
+}
+#scream-ghostface {display: none;}
+
 /* ****************************************************** */
 
 /** GAME 2 - FILM **/
@@ -679,9 +707,7 @@ hr {
 /* ****************************************************** */
 
 /** GAME 3 - BLACKOUT **/
-#blackout-canvas {
-    width: 100%;
-    height: 100vh;
+#blackout-canvas, #test-audio-canvas {
     position: fixed;
     top: 0;
     left: 0;
@@ -695,6 +721,7 @@ hr {
     transform: translate(-50%, -50%);
     cursor: pointer;
 }
+#test-audio-canvas {display: none;}
 
 /* ****************************************************** */
 
