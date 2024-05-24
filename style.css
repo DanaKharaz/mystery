@@ -291,10 +291,10 @@ hr {
 /* PAUSE SCREEN */
 /* tv */
 #pause-screen-hidden, #pause-screen-shown {
-    height: 80vh;
+    height: 100vh;
     padding-top: 15vh;
     margin-top: 3vh;
-    background-color: burlywood;
+    background-color: black;
 }
 #pause-screen-hidden {display: none;} /* initially hidden */
 #pause-screen-shown {display: auto;}
@@ -702,7 +702,23 @@ hr {
 /* ****************************************************** */
 
 /** GAME 3 - BLACKOUT **/
-#blackout-canvas, #test-audio-canvas {
+#blackout-hidden {
+    background-color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+#blackout-img-bg {
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 50vw;
+    transform: translate(-50%, 0);
+    cursor: pointer;
+}
+#blackout-canvas {
     position: fixed;
     top: 0;
     left: 0;
@@ -716,7 +732,6 @@ hr {
     transform: translate(-50%, -50%);
     cursor: pointer;
 }
-#test-audio-canvas {display: none;}
 
 /* ****************************************************** */
 

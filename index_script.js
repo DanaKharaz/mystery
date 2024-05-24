@@ -44,8 +44,7 @@ async function titleBlink() {
 const introScreen = document.querySelector('#intro-screen');
 
 const introLines = [];
-// TODO : write intro text
-const introText = "hello,\u00A0you.\u00A0how\u00A0did\u00A0you\u00A0end\u00A0up\u00A0here?\u00A0well..\u00A0there\u00A0is\u00A0no\u00A0escape\u00A0now\u00A0(instructions)\n\u00A0I'll\u00A0give\u00A0you\u00A0a\u00A0hint:\u00A0read\u00A0between\u00A0the\u00A0lines\u00A0stars";
+const introText = "hello,\u00A0you.\u00A0how\u00A0did\u00A0you\u00A0end\u00A0up\u00A0here?\u00A0well..\u00A0there\u00A0is\u00A0no\u00A0escape\u00A0now\u00A0would\u00A0you\u00A0like\u00A0to\u00A0play\u00A0a\u00A0game?\u00A0Or\u00A0maybe\u00A0a\u00A0few.\u00A0But\u00A0be\u00A0prepared,\u00A0it\u00A0might\u00A0not\u00A0be\u00A0easy.\u00A0Especially\u00A0in\u00A0the\u00A0beginning.\u00A0But\u00A0we\'ll\u00A0help\u00A0you\u00A0So,\u00A0let\'s\u00A0start.\nRight\u00A0away\u00A0I'll\u00A0give\u00A0you\u00A0a\u00A0hint:\u00A0read\u00A0between\u00A0the\u00A0lines\u00A0stars";
 const introTextWords = introText.split('\u00A0');
 
 const maxCharPerLine = 66;
@@ -57,18 +56,23 @@ let charsInLine = 0;
 // add longer pauses after certain characters
 const defaultPause = 100;
 const charPauses = new Array(introText.length).fill(defaultPause); // cantains pauses in millis (100 by default)
-// TODO : add needed pauses
+// pauses
 charPauses[6] = 1000;
 charPauses[11] = 1000;
 charPauses[36] = 1000;
 charPauses[43] = 1000;
 charPauses[67] = 1000;
-charPauses[127] = 1000;
+charPauses[98] = 1000;
+charPauses[114] = 1000;
+charPauses[182] = 1000;
+charPauses[201] = 1000;
+charPauses[219] = 1000;
+charPauses[273] = 1000;
 
 // add html text effects
 // strikethrough effect {index of last char affected : length affected} - the word is written then striked
 const charStrikes = {};
-charStrikes[126] = 5;
+charStrikes[272] = 5;
 
 newLine(true);
 function newLine(starting = false) {
@@ -133,7 +137,7 @@ async function showIntroText() {
         charI++
         charsInLine++;
     }
-    //await delay(1000);
+    await delay(1000);
 
     // hide intro text
     introScreen.animate({

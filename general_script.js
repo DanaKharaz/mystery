@@ -39,32 +39,12 @@ function pauseBtnOnClick(event) {
     isPaused = !isPaused;
 }
 
-/* PAUSE SCREEN CANVAS */
-// TODO !!!
-
-/* SOUND */
-const soundBtn = document.querySelector('#sound-btn');
-let isMuted = false;
-soundBtn.addEventListener('click', soundBtnClick);
-function soundBtnClick(event) {
-    if (isMuted) {
-        soundBtn.src = 'icons/sound_on_btn.svg';
-        // TODO : turn the sound on - volume
-    } else {
-        soundBtn.src = 'icons/sound_off_btn.svg';
-        // TODO : turn the sound off - volume
-    }
-    isMuted = !isMuted;
-}
-
 /* INFO */
 const infoBtn = document.querySelector('#info-btn');
 const sidePanel = document.querySelector('#side-panel');
 let infoPanelShown = false;
 infoBtn.addEventListener('click', infoBtnOnClick);
 async function infoBtnOnClick(event) {
-    // TODO : display a small side window with info about how to play (no hints!) and sound/reference info (?) - for refs make small sep html page (new tab)??
-
     // hide hint panel, in case it is shown
     if (hintPanelShown) {
         sidePanel.classList.remove('opening-side-panel');
@@ -79,35 +59,25 @@ async function infoBtnOnClick(event) {
         sidePanel.classList.add('closing-side-panel');
     } else {
         // set correct text to panel
-        switch(currGame) { // TODO : arrange in proper order (for readability) // using innerHTML : a) for appearane (italics, bold); b) data not editable by user
+        switch(currGame) { // using innerHTML : a) for appearane (italics, bold); b) data not editable by user
             case 'scream':
-                // TODO
-                sidePanel.innerHTML = '<b>game rules</b>: ???<br><br><b>references</b>: Scream<br><br><b>music</b>: ???';
+                sidePanel.innerHTML = '<b>game rules</b>: the host will guide you through the game<br><br><b>references</b>: Scream';
                 break;
             case 'film':
-                // TODO
                 let references = '';
                 filmsIncl.sort();
                 for (let i = 0; i < 12; i++) references += '<i>' + filmsIncl[i].slice(0, -6) + '</i>' + filmsIncl[i].slice(-6) + ', <br>';
                 references = references.slice(0, -6);
-                sidePanel.innerHTML = '<b>game rules</b>: each piece of film has a movie scene on the other side, there are 12 pairs of scenes; click on any 2 pieces to temporarily reveal the scenes behind; find all pairs before running out of moves<br><br><b>references</b>:<br>' + references + '<br><br><b>music</b>: ???';
+                sidePanel.innerHTML = '<b>game rules</b>: each piece of film has a movie scene on the other side, there are 12 pairs of scenes; click on any 2 pieces to temporarily reveal the scenes behind; find all pairs before running out of moves<br><br><b>references</b>:<br>' + references;
                 break;
             case 'blackout':
-                // TODO
-                sidePanel.innerHTML = '<b>game rules</b>: click on "X" and move the cursor to reveal hidden messages, they will lead you to the next game<br><br><b>references</b>: The Addams Family<br><br><b>music</b>: ???';
+                sidePanel.innerHTML = '<b>game rules</b>: click on "X" and move the cursor to reveal hidden messages, they will lead you to the next game<br><br><b>references</b>: The Addams Family';
                 break;
-            case 'labyrinth1': // 2d maze
-                // TODO
-                sidePanel.innerHTML = '<b>game rules</b>: use the arrow keys to move through the maze, make sure to collect all items (white circles) before exiting<br><br><b>reference</b>: <i>Labyrinth</i> (1986)<br><br><b>music</b>: ???';
+            case 'labyrinth': // 2d maze, 3d maze 'rules' on screen (keys)
+                sidePanel.innerHTML = '<b>game rules</b>: use the arrow keys to move through the maze, make sure to collect all items (white circles) before exiting<br><br><b>reference</b>: <i>Labyrinth</i> (1986)';
                 break
-            case 'labyrinth2': // relativity stairs
-                // TODO
-                break;
             case 'puzzle':
-                // TODO
-                sidePanel.innerHTML = '<b>game rules</b>: drag puzzle pieces from the toolbar into the white frame; click and drag to move the pieces within the frame, double click to rotate; when positioned correctly, a piece will lock in place<br><br><b>music</b>: <i>Wicked Game</i> by Chris Isaak';
-            default: // before the game starts
-                // TODO
+                sidePanel.innerHTML = '<b>game rules</b>: drag puzzle pieces from the toolbar into the white frame; click and drag to move the pieces within the frame, double click to rotate; when positioned correctly, a piece will lock in place';
         }
 
         sidePanel.classList.remove('closing-side-panel');
@@ -143,10 +113,10 @@ async function hintBtnOnClick(event) {
             hintGiven = true;
             hintTooltip.textContent = 'hints left: ' + (hints - 1)
             switch(currGame) {
-                case 'scream':
-                    // TODO
+                case 'map':
+                    sidePanel.textContent = 'order can be deceiving, but one thing is true no matter what - A=1';
                     break;
-                case 'labyrinth1':
+                case 'labyrinth':
                     sidePanel.textContent = 'to start the game click the "Tab" key, afterwards simply move through the maze';
                     break;
                 case 'blackout':
@@ -327,14 +297,15 @@ function puzzleGame() {
             isMoving = false;
         }
     }
-    function puzzleSolved() {
-        // TODO : finish entire game
-        console.log('Puzzle Solved!');
-
+    async function puzzleSolved() {
         for (const p of puzzlePiecesUse) p.remove();
 
         puzzleGrid.style.backgroundImage = 'url(puzzle_res/original.png)';
         puzzleGrid.style.border = '2px solid white';
+
+        await delay(3000);
+        // loop to the very beginning
+        window.location.replace('index.html');
     }
 }
 
@@ -346,11 +317,12 @@ const minigame = document.querySelector('#minigame');
 let currGame;
 if (sessionStorage.getItem('currGame')) {
     currGame = sessionStorage.getItem('currGame');
-    minigame.src = currGame + '.html';
+    if (currGame == 'puzzle') minigame.style.display = 'none';
+    else minigame.src = currGame + '.html';
 } else {
-    sessionStorage.setItem('currGame', 'bat'); // FIXME
-    currGame = 'labyrinth'; // FIXME
-    minigame.src = 'labyrinth.html'; // FIXME
+    sessionStorage.setItem('currGame', 'scream');
+    currGame = 'scream';
+    minigame.src = 'scream.html';
 }
 
 const delay = millis => new Promise((resolve, reject) => setTimeout(_ => resolve(), millis));
@@ -360,7 +332,7 @@ const filmsIncl = [];
 let pickingFilms = false;
 
 window.addEventListener('message', async function(event) {
-    switch(event.data) { // TODO : organize all messages (game transitions and other)
+    switch(event.data) {
         case 'scream-won':
             gameWon(8);
 
@@ -411,15 +383,15 @@ window.addEventListener('message', async function(event) {
 
             // continue to puzzle game : hide iframe and reveal puzzle grid below
             currGame = 'puzzle';
+            sessionStorage.setItem('currGame', 'puzzle');
             minigame.style.display = 'none';
             puzzleGame();
 
             break;
+
         case 'picking-films':
             pickingFilms = !pickingFilms;
             break;
-
-        // TODO : the rest of cases
 
         default:
             if (pickingFilms) {filmsIncl.push(event.data);}
@@ -449,8 +421,7 @@ async function transition(nextGame) {
     await delay(750); // wait for transition to end
 }
 async function updateProgress(n) {
-    // TODO
-    for (let i = piecesShown; i < piecesShown + n; i++) { // FIXME : adding 8 pieces
+    for (let i = piecesShown; i < piecesShown + n; i++) {
         puzzlePieces[i].classList.remove('puzzle-piece-hidden');
         await delay(200); // show one by one
     }

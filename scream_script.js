@@ -13,7 +13,7 @@ const phrases = ['NO,\u00A0PLEASE\u00A0DON\'T\u00A0KILL\u00A0ME,\u00A0MR.\u00A0G
                  'THERE\u00A0ARE\u00A0CERTAIN\u00A0RULES\u00A0THAT\u00A0ONE\u00A0MUST\u00A0ABIDE\u00A0BY\u00A0IN\u00A0ORDER\u00A0TO\u00A0SUCCESSFULLY\u00A0SURVIVE\u00A0A\u00A0HORROR\u00A0MOVIE.',
                  'DON\'T\u00A0YOU\u00A0BLAME\u00A0THE\u00A0MOVIES.\u00A0MOVIES\u00A0DON\'T\u00A0CREATE\u00A0PSYCHOS.\u00A0MOVIES\u00A0MAKE\u00A0PSYCHOS\u00A0MORE\u00A0CREATIVE!',
                  'LUCKY\u00A0FOR\u00A0YOU\u00A0THERE\'S\u00A0A\u00A0BONUS\u00A0ROUND,\u00A0BUT\u00A0POOR\u00A0STEVE...\u00A0I\'M\u00A0AFRAID\u00A0HE\'S\u00A0OUT!',
-                 'CAREFUL.\u00A0THIS\u00A0IS\u00A0THE\u00A0MOMENT\u00A0WHEN\u00A0THE\u00A0SUPPOSEDLY\u00A0DEAD\u00A0KILLER\u00A0COMES\u00A0BACK\u00A0TO\u00A0LIFE,\u00A0FOR\u00A0ONE\u00A0LAST\u00A0SCARE.',
+                 'CAREFULL.\u00A0THIS\u00A0IS\u00A0THE\u00A0MOMENT\u00A0WHEN\u00A0THE\u00A0SUPPOSEDLY\u00A0DEAD\u00A0KILLER\u00A0COMES\u00A0BACK\u00A0TO\u00A0LIFE,\u00A0FOR\u00A0ONE\u00A0LAST\u00A0SCARE.',
                  'NEVER\u00A0SAY\u00A0\"WHO\'S\u00A0THERE?\"\u00A0DON\'T\u00A0YOU\u00A0WATCH\u00A0SCARY\u00A0MOVIES?\u00A0IT\'S\u00A0A\u00A0DEATH\u00A0WISH.',
                  'YOU\u00A0MIGHT\u00A0AS\u00A0WELL\u00A0COME\u00A0OUT\u00A0TO\u00A0INVESTIGATE\u00A0A\u00A0STRANGE\u00A0NOISE\u00A0OR\u00A0SOMETHING.',
                  '-YOU\u00A0STILL\u00A0HAVEN\'T\u00A0TOLD\u00A0ME\u00A0YOUR\u00A0NAME.\u00A0-WHY\u00A0DO\u00A0YOU\u00A0WANT\u00A0TO\u00A0KNOW\u00A0MY\u00A0NAME?\u00A0-BECAUSE\u00A0I\u00A0WANT\u00A0TO\u00A0KNOW\u00A0WHO\u00A0I\'M\u00A0LOOKING\u00A0AT.',
@@ -22,9 +22,6 @@ const phrases = ['NO,\u00A0PLEASE\u00A0DON\'T\u00A0KILL\u00A0ME,\u00A0MR.\u00A0G
                  'IF\u00A0I\'M\u00A0RIGHT\u00A0ABOUT\u00A0THIS,\u00A0I\u00A0COULD\u00A0SAVE\u00A0A\u00A0MAN\'S\u00A0LIFE.\u00A0DO\u00A0YOU\u00A0KNOW\u00A0WHAT\u00A0THAT\u00A0WOULD\u00A0DO\u00A0FOR\u00A0MY\u00A0BOOK\u00A0SALES?',
                  'SYDNEY,\u00A0HOW\u00A0DOES\u00A0IT\u00A0FEEL\u00A0TO\u00A0BE\u00A0ALMOST\u00A0BRUTALLY\u00A0BUTCHERED?\u00A0PEOPLE\u00A0WANT\u00A0TO\u00A0KNOW.',
                  '-LOOK,\u00A0I\u00A0AM\u00A0TWO\u00A0SECONDS\u00A0AWAY\u00A0FROM\u00A0CALLING\u00A0THE\u00A0POLICE!\u00A0-THEY\'LL\u00A0NEVER\u00A0MAKE\u00A0IT\u00A0IN\u00A0TIME.'];
-
-//TODO intro : what's the matter [sydney] you look like you've seen a ghost
-//TODO host : and don't forget, we all go a little mad sometimes
 
 const idx = Math.floor(Math.random() * phrases.length);
 const words = phrases[idx].split('\u00A0');
@@ -213,7 +210,6 @@ async function play() {
             break;
 
         case 0: 
-            // TODO differentiate and randomize the phrases
             hostSpeechBubble.innerHTML = 'It seems that fate is not on your side today, ' + names[turn] + ', your turn is skipped!';
             await delay(3000);
             
@@ -221,7 +217,6 @@ async function play() {
             break;
 
         case 'lose':
-            // TODO differentiate and randomize the phrases
             hostSpeechBubble.innerHTML = 'In a tragic turn of events, you lose all of your points, ' + names[turn] + '.';
             await delay(3000);
             scores[turn] = 0;
@@ -392,7 +387,6 @@ async function guessLetter(event, unplayableGuess = false) {
     const guess = letters[event.code];
     console.log(guess);
 
-    // TODO differentiate and randomize the phrases
     charSpeechBubbles[turn].style.display = 'initial';
     charSpeechBubbles[turn].innerHTML = 'Maybe \'' + guess + '\'?';
     animateChar();
@@ -417,7 +411,6 @@ async function guessLetter(event, unplayableGuess = false) {
         rightGuess = true;
     }
 
-    // TODO differentiate and randomize the phrases
     if (rightGuess) {
         // add to score
         if (wheelVals[currWheelIdx] == 'x2') {
@@ -426,7 +419,7 @@ async function guessLetter(event, unplayableGuess = false) {
         }
         else if (wheelVals[currWheelIdx] == 'x4') {
             scores[turn] *= 4;
-            hostSpeechBubble.innerHTML = 'Unbelieveble! Now you have quadruple the points!';
+            hostSpeechBubble.innerHTML = 'Unbelievable! Now you have quadruple the points!';
         }
         else {
             scores[turn] += wheelVals[currWheelIdx];
@@ -499,7 +492,6 @@ async function nextTurn() {
     charSpeechBubbles[turn].style.display = 'none';
 
     turn = (turn + 1) % 3;
-    // TODO differentiate and randomize the phrases
     hostSpeechBubble.innerHTML = 'Now, ' + names[turn] + ', it\'s your turn, please spin the wheel.';
 
     if (turn == 0) {
@@ -657,7 +649,7 @@ guessScreenBtnSubmit.addEventListener('click', async function (event) {
     await delay(1500);
 
     if (correctGuess) {
-        hostSpeechBubble.innerHTML = 'Congradulations! This is the right answer.';
+        hostSpeechBubble.innerHTML = 'Congratulations! This is the right answer.';
         gameOver();
     } else {
         fullGuesses++;
@@ -666,7 +658,7 @@ guessScreenBtnSubmit.addEventListener('click', async function (event) {
             await delay(2500);
         }
         else {
-            hostSpeechBubble.innerHTML = 'Well... that\'s wrong unfortunately. But you try one more time now or ofter more letters have been revealed.';
+            hostSpeechBubble.innerHTML = 'Well... that\'s wrong unfortunately. But you can try one more time now or after more letters have been revealed.';
             await delay(3500);
         }
         nextTurn();
