@@ -24,4 +24,4 @@ The majority of the games have some randomness to them. In some, element(s) are 
 <i>Time.</i> <br><br>
 The project uses a lot of asynchronous functions, time delays, and promises. This is often done for animations (not interrupting them) or creating a more immersive experience. With delays, unplayable characters participating in the game may seem more real, as they do not act instantaneously (for example, in _scream_). Additionally, this allows for better character dialogue with pauses (in _scream_ or _labyrinth_). Moreover, interesting effects can be created thanks to time delays and asynchronicity, such as the 'typing' effect in the introduction of the whole project. <br><br>
 <b>Result.</b> <br><br>
-
+https://drive.google.com/file/d/1HlKfHB9UwkszLoq7bw2JqYijWNnkKiho/view?usp=drive_link
